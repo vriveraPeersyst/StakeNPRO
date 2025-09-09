@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import wallet selector styles */
+@import '@near-wallet-selector/modal-ui/styles.css';
+
+@font-face {
+  font-family: 'SF Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('SF Pro Display'), local('SFProDisplay-Regular');
+}
+
+@font-face {
+  font-family: 'SF Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('SF Pro Display Semibold'), local('SFProDisplay-Semibold');
+}
+
+@font-face {
+  font-family: 'SF Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('SF Mono'), local('SFMono-Regular');
+}
+
+@font-face {
+  font-family: 'SF Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('SF Mono Semibold'), local('SFMono-Semibold');
+}
+
+html {
+  @apply font-sans tracking-tight;
+}
+
+body {
+  @apply bg-white text-nm-text antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.bg-blur-overlay {
+  backdrop-filter: blur(50px);
+  background: rgba(255, 255, 255, 0.64);
+}
