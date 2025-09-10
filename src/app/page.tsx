@@ -21,23 +21,23 @@ export default function HomePage() {
       {/* Main content */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="pt-4 sm:pt-8 pb-6 sm:pb-12">
+        <header className="pt-3 sm:pt-4 md:pt-8 pb-4 sm:pb-6 md:pb-12">
           <Navbar />
         </header>
 
         {/* Main content area */}
-        <main className="flex-1 flex flex-col items-center justify-center mt-8 sm:mt-24">
+        <main className="flex-1 flex flex-col items-center justify-center mt-4 sm:mt-8 md:mt-24">
           {/* Hero title */}
-          <div className="text-center mb-8 sm:mb-12 px-4">
-            <h1 className="text-2xl sm:text-4xl leading-8 sm:leading-12 font-semibold text-nm-text tracking-tight">
+          <div className="text-center mb-6 sm:mb-8 md:mb-12 px-4">
+            <h1 className="text-xl sm:text-2xl md:text-4xl leading-7 sm:leading-8 md:leading-12 font-semibold text-nm-text tracking-tight">
               Stake NEAR.{' '}
-              <span className="inline-flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 sm:gap-2">
                 Earn 
                 {/* NPRO 3D Icon */}
                 <img 
                   src="/icons/npro3dicon.svg" 
                   alt="NPRO Token" 
-                  className="w-12 h-12 sm:w-18 sm:h-18"
+                  className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-18 lg:h-18"
                 />
               </span>{' '}
               NPRO now.
@@ -45,7 +45,7 @@ export default function HomePage() {
           </div>
 
           {/* Main container with StakeCard and AppBanner */}
-          <div className="flex flex-col items-start gap-2 w-full max-w-[760px] mx-auto -mt-4 sm:-mt-8 mb-8 sm:mb-16 px-4">
+          <div className="flex flex-col items-start gap-2 w-full max-w-[760px] mx-auto -mt-2 sm:-mt-4 md:-mt-8 mb-6 sm:mb-8 md:mb-16 px-4">
             {/* Stake Card */}
             <div className="w-full">
               <StakeCard />

@@ -39,10 +39,14 @@
 
 html {
   @apply font-sans tracking-tight;
+  /* Prevent zoom on input focus on iOS */
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   @apply bg-white text-nm-text antialiased;
+  /* Prevent rubber band scrolling on iOS */
+  overscroll-behavior-y: none;
 }
 
 * {
@@ -52,4 +56,46 @@ body {
 .bg-blur-overlay {
   backdrop-filter: blur(50px);
   background: rgba(255, 255, 255, 0.64);
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Ensure tap targets are at least 44px */
+  button, a, [role="button"] {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Improve scrolling on iOS */
+  .scrollable {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent zoom on form inputs */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Touch-friendly hover states */
+@media (hover: hover) {
+  .hover\:bg-opacity-80:hover {
+    background-color: rgba(var(--tw-bg-opacity), 0.8);
+  }
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid #5F8AFA;
+  outline-offset: 2px;
+}
+
+/* Improve text rendering */
+.font-sf {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

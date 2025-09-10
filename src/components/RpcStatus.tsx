@@ -4,7 +4,11 @@ import React, { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRpcStatus } from '@/hooks/useRpcStatus'
 
-export function RpcStatus() {
+interface RpcStatusProps {
+  isMobile?: boolean
+}
+
+export function RpcStatus({ isMobile = false }: RpcStatusProps) {
   const { status, currentUrl, switchRpc, addCustomRpc, removeRpc, clearPreferences } = useRpcStatus()
   const [showDetails, setShowDetails] = useState(false)
   const [showAddRpc, setShowAddRpc] = useState(false)
@@ -61,6 +65,223 @@ export function RpcStatus() {
   const hasFailures = status.endpoints.some((ep: any) => ep.failures > 0)
   const availableCount = status.endpoints.filter((ep: any) => !ep.isBlacklisted).length
 
+  // Mobile version - embedded in navbar
+  if (isMobile) {
+    return (
+      <div className="w-full">
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className={`w-full px-2 py-1 rounded text-xs font-sf-mono font-medium shadow-sm transition-all duration-200 ${
+            hasBlacklisted 
+              ? 'bg-red-50 text-nm-error border border-red-200' 
+              : hasFailures
+              ? 'bg-yellow-50 text-nm-warning border border-yellow-200'
+              : 'bg-green-50 text-nm-success border border-green-200'
+          }`}
+        >
+          RPC: {availableCount}/{status.endpoints.length} endpoints
+        </button>
+        
+        {showDetails && (
+          <div className="mt-1 w-full bg-gray-50 rounded border border-gray-200 overflow-hidden">
+            {/* Header */}
+            <div className="px-2 py-1 bg-gray-100 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h4 className="font-sf font-medium text-xs text-nm-text">
+                  RPC Status
+                </h4>
+                <button
+                  onClick={() => setShowAddRpc(!showAddRpc)}
+                  className="flex items-center gap-0.5 px-1 py-0.5 bg-primary text-white rounded text-xs hover:bg-primary/80 transition-all font-sf font-medium"
+                >
+                  <svg width="6" height="6" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 1V11M1 6H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Add
+                </button>
+              </div>
+            </div>
+
+            <div className="px-2 py-1 max-h-24 overflow-y-auto">
+              {/* Current RPC Display */}
+              <div className="mb-1">
+                <div className="text-xs font-sf font-medium text-nm-textSecondary mb-0.5">
+                  Current
+                </div>
+                <div className="px-1 py-0.5 bg-white rounded text-xs border border-gray-200">
+                  <span className="font-sf-mono text-xs text-nm-text">
+                    {currentUrl.split('//')[1]?.split('/')[0] || 'unknown'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Add Custom RPC Form */}
+              {showAddRpc && (
+                <div className="mb-1 p-1 bg-white rounded border border-gray-200">
+                  <h5 className="font-sf font-medium text-xs text-nm-text mb-1">
+                    Add Custom RPC
+                  </h5>
+                  <input
+                    type="text"
+                    value={newRpcUrl}
+                    onChange={(e) => setNewRpcUrl(e.target.value)}
+                    placeholder="https://your-rpc-endpoint.com"
+                    className="w-full px-1 py-0.5 border border-gray-300 rounded text-xs font-sf text-nm-text placeholder-nm-muted bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary mb-1"
+                  />
+                  <div className="flex items-center mb-1">
+                    <input
+                      type="checkbox"
+                      id="makeItPrimary-mobile"
+                      checked={makeItPrimary}
+                      onChange={(e) => setMakeItPrimary(e.target.checked)}
+                      className="mr-1 w-2.5 h-2.5 text-primary bg-white border-gray-300 rounded focus:ring-primary"
+                    />
+                    <label htmlFor="makeItPrimary-mobile" className="text-xs font-sf font-medium text-nm-textSecondary">
+                      Make primary
+                    </label>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={handleAddCustomRpc}
+                      className="px-1.5 py-0.5 bg-nm-success text-white rounded text-xs hover:bg-nm-success/80 transition-all font-sf font-medium"
+                    >
+                      Add
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddRpc(false)
+                        setNewRpcUrl('')
+                        setMakeItPrimary(false)
+                      }}
+                      className="px-1.5 py-0.5 bg-nm-muted text-white rounded text-xs hover:bg-nm-muted/80 transition-all font-sf font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Instructions */}
+              <div className="mb-1">
+                <p className="text-xs font-sf font-medium text-nm-muted">
+                  Tap to switch endpoint
+                </p>
+              </div>
+              
+              {/* RPC Endpoints List */}
+              <div className="space-y-0.5">
+                {status.endpoints.map((ep: any, i: number) => {
+                  const isCurrentRpc = currentUrl === ep.url
+                  return (
+                    <div
+                      key={i}
+                      className={`flex justify-between items-center p-1 rounded border transition-all duration-200 ${
+                        isCurrentRpc 
+                          ? 'bg-primary/10 border-primary/40' 
+                          : ep.isBlacklisted 
+                            ? 'bg-nm-error/10 border-nm-error/30 text-nm-error' 
+                            : ep.failures > 0 
+                              ? 'bg-nm-warning/10 border-nm-warning/30' 
+                              : 'bg-white border-gray-200 hover:border-primary/40'
+                      }`}
+                    >
+                      <button
+                        onClick={() => !ep.isBlacklisted && handleRpcSwitch(ep.url)}
+                        disabled={ep.isBlacklisted}
+                        className={`flex items-center gap-1 flex-1 text-left ${
+                          ep.isBlacklisted ? 'cursor-not-allowed' : 'cursor-pointer'
+                        }`}
+                      >
+                        {/* Status Indicator */}
+                        <div className={`w-1 h-1 rounded-full ${
+                          isCurrentRpc 
+                            ? 'bg-primary' 
+                            : ep.isBlacklisted 
+                              ? 'bg-nm-error' 
+                              : ep.failures > 0 
+                                ? 'bg-nm-warning' 
+                                : 'bg-nm-success'
+                        }`}></div>
+                        
+                        {/* RPC URL */}
+                        <span className={`truncate font-sf-mono text-xs ${
+                          ep.isBlacklisted 
+                            ? 'text-nm-error' 
+                            : isCurrentRpc 
+                              ? 'text-primary font-medium' 
+                              : 'text-nm-text'
+                        }`}>
+                          {ep.url.split('//')[1]?.split('/')[0] || ep.url}
+                        </span>
+                      </button>
+                      
+                      {/* Status Badges and Actions */}
+                      <div className="flex gap-0.5 items-center">
+                        {ep.failures > 0 && (
+                          <span className="px-0.5 py-0.5 bg-nm-warning text-white rounded text-xs font-sf font-medium">
+                            F:{ep.failures}
+                          </span>
+                        )}
+                        {ep.isBlacklisted && (
+                          <span className="px-0.5 py-0.5 bg-nm-error text-white rounded text-xs font-sf font-medium">
+                            BL
+                          </span>
+                        )}
+                        {isCurrentRpc && (
+                          <span className="px-0.5 py-0.5 bg-primary text-white rounded text-xs font-sf font-medium">
+                            ●
+                          </span>
+                        )}
+                        {!ep.isDefault && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleRemoveRpc(ep.url)
+                            }}
+                            className="w-3 h-3 flex items-center justify-center bg-nm-error text-white rounded hover:bg-nm-error/80 transition-all"
+                            title="Remove custom RPC"
+                          >
+                            <svg width="4" height="4" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-2 py-1 bg-gray-100 border-t border-gray-200">
+              <button
+                onClick={() => setShowDetails(false)}
+                className="w-full py-0.5 text-center text-nm-muted hover:text-nm-text transition-colors font-sf font-medium text-xs"
+              >
+                Close
+              </button>
+              
+              {process.env.NODE_ENV === 'development' && (
+                <button
+                  onClick={() => {
+                    if (confirm('Reset all RPC preferences to defaults?')) {
+                      clearPreferences()
+                    }
+                  }}
+                  className="w-full mt-0.5 py-0.5 text-center text-nm-error hover:opacity-80 transition-opacity font-sf font-medium text-xs"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Desktop version - floating
   return (
     <div className="fixed top-4 right-4 z-50">
       <button

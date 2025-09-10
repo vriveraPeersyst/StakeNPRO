@@ -76,10 +76,10 @@ export default function AmountInput({
   ]
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Available Balance Display - Only show when connected */}
       {isConnected && (
-        <div className="flex justify-between items-center text-sm">
+        <div className="flex justify-between items-center text-xs sm:text-sm">
           <span className="text-nm-muted">Available balance:</span>
           <span className="font-sf font-medium text-nm-text">
             {isBalanceLoading ? (
@@ -93,16 +93,16 @@ export default function AmountInput({
 
       {/* Amount Input */}
       <div className="relative">
-        <div className="w-full h-18 border border-nm-border rounded-lg flex">
+        <div className="w-full min-h-16 sm:h-18 border border-nm-border rounded-lg flex flex-col sm:flex-row">
           {/* Left side - Amount input */}
-          <div className="flex-1 p-4 flex flex-col justify-center">
+          <div className="flex-1 p-3 sm:p-4 flex flex-col justify-center">
             <input
               type="text"
               value={inputValue}
               onChange={handleChange}
               disabled={disabled}
               placeholder="0"
-              className="text-sm leading-5 font-mono font-semibold bg-transparent border-none outline-none text-nm-text placeholder-nm-muted w-full"
+              className="text-base sm:text-lg leading-5 font-mono font-semibold bg-transparent border-none outline-none text-nm-text placeholder-nm-muted w-full"
             />
             {nearPrice && (
               <div className="text-xs leading-4 font-mono font-semibold text-nm-muted mt-1">
@@ -112,10 +112,10 @@ export default function AmountInput({
           </div>
           
           {/* Right side - NEAR currency selector */}
-          <div className="flex items-center pr-4">
-            <div className="flex flex-row justify-center items-center px-3 py-1.5 gap-2 w-[88px] h-9 bg-[#F6F6F6] rounded-[100px]">
-              {/* NEAR token icon - 24x24px with rounded background */}
-              <div className="w-6 h-6 rounded-full overflow-hidden flex-none">
+          <div className="flex items-center justify-center sm:justify-end px-3 pb-3 sm:px-4 sm:py-0">
+            <div className="flex flex-row justify-center items-center px-3 py-1.5 gap-2 w-full sm:w-[88px] h-8 sm:h-9 bg-[#F6F6F6] rounded-[100px]">
+              {/* NEAR token icon - 20x20px on mobile, 24x24px on desktop */}
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden flex-none">
                 <img 
                   src="/icons/neartoken.svg" 
                   alt="NEAR Token" 
@@ -123,7 +123,7 @@ export default function AmountInput({
                 />
               </div>
               {/* NEAR label */}
-              <span className="w-[38px] h-5 font-sf font-medium text-sm leading-5 text-center tracking-[-0.01em] text-[#3F4246] flex-none">
+              <span className="font-sf font-medium text-sm leading-4 sm:leading-5 text-center tracking-[-0.01em] text-[#3F4246] flex-none">
                 NEAR
               </span>
             </div>
@@ -133,7 +133,7 @@ export default function AmountInput({
 
       {/* Amount Chips - Only show when connected */}
       {isConnected && (
-        <div className="flex flex-row items-start gap-2 w-full h-10">
+        <div className="grid grid-cols-2 sm:flex sm:flex-row items-start gap-2 w-full">
           {chips.map((chip) => {
             const isSelected = selectedPercentage === chip.label
             return (
@@ -141,7 +141,7 @@ export default function AmountInput({
                 key={chip.label}
                 onClick={chip.onClick || (() => {})}
                 disabled={disabled}
-                className={`flex flex-row justify-center items-center px-4 py-2 gap-2 h-10 rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-[#3F4246] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-1 ${
+                className={`flex flex-row justify-center items-center px-3 sm:px-4 py-2 gap-2 h-9 sm:h-10 rounded-[100px] font-sf font-medium text-sm sm:text-base leading-5 sm:leading-6 text-center tracking-[-0.01em] text-[#3F4246] transition-colors disabled:opacity-50 disabled:cursor-not-allowed sm:flex-1 ${
                   isSelected ? 'bg-[#DBDBDB]' : 'bg-[#F6F6F6] hover:bg-gray-200'
                 }`}
               >

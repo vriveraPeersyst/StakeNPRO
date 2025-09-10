@@ -120,9 +120,9 @@ export default function StakeCard() {
   const renderStakeTab = () => {
     if (!isConnected) {
       return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div>
-            <label className="block text-base leading-6 font-semibold text-nm-text mb-4">
+            <label className="block text-sm sm:text-base leading-5 sm:leading-6 font-semibold text-nm-text mb-3 sm:mb-4">
               Amount
             </label>
             <AmountInput
@@ -139,7 +139,7 @@ export default function StakeCard() {
 
           <button
             onClick={signIn}
-            className="flex flex-row justify-center items-center py-3.5 px-5 gap-2 w-full h-[52px] bg-[#E5ECFE] rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-[#5F8AFA] hover:opacity-80 transition-opacity"
+            className="flex flex-row justify-center items-center py-3 sm:py-3.5 px-4 sm:px-5 gap-2 w-full h-12 sm:h-[52px] bg-[#E5ECFE] rounded-[100px] font-sf font-medium text-sm sm:text-base leading-5 sm:leading-6 text-center tracking-[-0.01em] text-[#5F8AFA] hover:opacity-80 transition-opacity active:scale-95"
           >
             Connect Wallet
           </button>
@@ -148,9 +148,9 @@ export default function StakeCard() {
     }
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <label className="block font-sf text-base leading-6 font-semibold text-nm-text mb-4">
+          <label className="block font-sf text-sm sm:text-base leading-5 sm:leading-6 font-semibold text-nm-text mb-3 sm:mb-4">
             Amount
           </label>
           <AmountInput
@@ -168,10 +168,10 @@ export default function StakeCard() {
           
           {/* Gas Fee Warning */}
           <div className="mt-2 flex items-start gap-2">
-            <svg className="w-4 h-4 text-[#999999] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 sm:w-4 sm:h-4 text-[#999999] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="font-sf text-xs text-[#999999] leading-4">
+            <p className="font-sf text-xs leading-3 sm:leading-4 text-[#999999]">
               0.1 NEAR is reserved for unstaking and storage fees
             </p>
           </div>
@@ -180,20 +180,20 @@ export default function StakeCard() {
         <button
           onClick={handleStake}
           disabled={!stakeAmount || parseFloat(stakeAmount) <= 0 || stakeLoading || !isConnected}
-          className="flex flex-row justify-center items-center py-3.5 px-5 gap-2 w-full h-[52px] bg-[#5F8AFA] rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-white hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex flex-row justify-center items-center py-3 sm:py-3.5 px-4 sm:px-5 gap-2 w-full h-12 sm:h-[52px] bg-[#5F8AFA] rounded-[100px] font-sf font-medium text-sm sm:text-base leading-5 sm:leading-6 text-center tracking-[-0.01em] text-white hover:opacity-80 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
         >
           {stakeLoading ? 'Staking...' : 'Stake NEAR'}
         </button>
 
         {stakeTxHash && (
           <div className="p-3 bg-teal/10 border border-teal/30 rounded-lg">
-            <p className="font-sf text-sm text-teal">
+            <p className="font-sf text-xs sm:text-sm text-teal">
               Transaction successful!{' '}
               <a
                 href={`${process.env.NEXT_PUBLIC_EXPLORER_BASE}/txns/${stakeTxHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline hover:no-underline"
+                className="underline hover:no-underline break-all"
               >
                 View on explorer
               </a>
@@ -207,16 +207,16 @@ export default function StakeCard() {
   const renderPositionTab = () => {
     if (!isConnected) {
       return (
-        <div className="flex flex-col justify-center items-center py-8 px-8 gap-4 w-full bg-white">
-          <h2 className="w-full max-w-[504px] font-sf font-medium text-2xl leading-8 text-center tracking-[-0.01em] text-[#3F4246]">
+        <div className="flex flex-col justify-center items-center py-6 sm:py-8 px-4 sm:px-8 gap-4 w-full bg-white">
+          <h2 className="w-full max-w-[504px] font-sf font-medium text-xl sm:text-2xl leading-7 sm:leading-8 text-center tracking-[-0.01em] text-[#3F4246]">
             You haven't connected your Wallet yet.
           </h2>
-          <p className="w-full max-w-[504px] font-sf font-normal text-base leading-6 text-center tracking-[-0.01em] text-[#999999]">
+          <p className="w-full max-w-[504px] font-sf font-normal text-sm sm:text-base leading-5 sm:leading-6 text-center tracking-[-0.01em] text-[#999999]">
             Connect your Wallet now and start staking NEAR to be among the first users to earn NPRO.
           </p>
           <button
             onClick={signIn}
-            className="flex flex-row justify-center items-center py-3.5 px-5 gap-2 w-39 h-13 bg-[#E5ECFE] rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-[#5F8AFA] hover:opacity-80 transition-opacity"
+            className="flex flex-row justify-center items-center py-3 sm:py-3.5 px-4 sm:px-5 gap-2 w-auto h-12 sm:h-13 bg-[#E5ECFE] rounded-[100px] font-sf font-medium text-sm sm:text-base leading-5 sm:leading-6 text-center tracking-[-0.01em] text-[#5F8AFA] hover:opacity-80 transition-opacity"
           >
             Connect Wallet
           </button>
@@ -226,28 +226,28 @@ export default function StakeCard() {
 
     if (balancesLoading) {
       return (
-        <div className="text-center py-8">
-          <p className="font-sf text-nm-muted">Loading your position...</p>
+        <div className="text-center py-6 sm:py-8">
+          <p className="font-sf text-nm-muted text-sm sm:text-base">Loading your position...</p>
         </div>
       )
     }
 
     return (
-      <div className="flex flex-col items-start p-0 gap-6 w-full bg-white">
+      <div className="flex flex-col items-start p-0 gap-4 sm:gap-6 w-full bg-white">
         {/* Earning NPRO Section */}
-        <div className="flex flex-col items-start gap-4 w-full">
-          <h3 className="w-full font-sf font-medium text-base leading-6 tracking-[-0.01em] text-[#3F4246]">
+        <div className="flex flex-col items-start gap-3 sm:gap-4 w-full">
+          <h3 className="w-full font-sf font-medium text-sm sm:text-base leading-5 sm:leading-6 tracking-[-0.01em] text-[#3F4246]">
             Earning NPRO
           </h3>
           
           {/* Token List */}
-          <div className="flex flex-col items-start gap-5 w-full">
+          <div className="flex flex-col items-start gap-4 sm:gap-5 w-full">
             {/* Staked NEAR Token Row - Only show if there's staked balance */}
             {staked && staked !== '0' && parseFloat(formatNearAmount(staked)) > 0 && (
-              <div className="flex flex-col items-start gap-4 w-full">
-                <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
+              <div className="flex flex-col items-start gap-3 sm:gap-4 w-full">
+                <div className="flex flex-row justify-center items-center gap-3 sm:gap-6 w-full min-h-11 bg-white">
                   {/* NEAR Icon */}
-                  <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
+                  <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-none">
                     <img 
                       src="/icons/neartoken.svg" 
                       alt="NEAR Token" 
@@ -256,11 +256,11 @@ export default function StakeCard() {
                   </div>
                   
                   {/* Token Info */}
-                  <div className="flex flex-col justify-center items-start flex-1">
-                    <div className="w-full font-sf font-semibold text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
+                  <div className="flex flex-col justify-center items-start flex-1 min-w-0">
+                    <div className="w-full font-sf font-semibold text-sm leading-4 sm:leading-5 tracking-[-0.01em] text-[#3F4246] truncate">
                       {formatNearAmount(staked)} NEAR (Staked)
                     </div>
-                    <div className="w-full font-sf font-semibold text-xs leading-4 tracking-[-0.01em] text-[#999999]">
+                    <div className="w-full font-sf font-semibold text-xs leading-3 sm:leading-4 tracking-[-0.01em] text-[#999999]">
                       {priceData && `$${((parseFloat(formatNearAmount(staked)) || 0) * priceData.usd).toFixed(2)}`}
                     </div>
                   </div>
@@ -269,7 +269,7 @@ export default function StakeCard() {
                   <button
                     onClick={handleUnstake}
                     disabled={unstakeLoading}
-                    className="flex flex-row justify-center items-center px-4 py-2 gap-2 w-[95px] h-10 bg-[#F6F6F6] rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-[#3F4246] hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-none"
+                    className="flex flex-row justify-center items-center px-3 sm:px-4 py-2 gap-2 w-20 sm:w-[95px] h-8 sm:h-10 bg-[#F6F6F6] rounded-[100px] font-sf font-medium text-xs sm:text-base leading-4 sm:leading-6 text-center tracking-[-0.01em] text-[#3F4246] hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-none"
                   >
                     {unstakeLoading ? 'Unstaking...' : 'Unstake'}
                   </button>
@@ -277,10 +277,10 @@ export default function StakeCard() {
 
                 {/* Unstake Form - Show when modal is open */}
                 {showUnstakeModal && (
-                  <div className="w-full bg-[#F8F9FA] rounded-xl p-4 border border-[#E5E5E5]">
+                  <div className="w-full bg-[#F8F9FA] rounded-xl p-3 sm:p-4 border border-[#E5E5E5]">
                     {/* Form Header */}
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-sf font-semibold text-base leading-6 text-[#3F4246]">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <h4 className="font-sf font-semibold text-sm sm:text-base leading-5 sm:leading-6 text-[#3F4246]">
                         Choose amount to unstake
                       </h4>
                       <button
@@ -296,7 +296,7 @@ export default function StakeCard() {
                     </div>
 
                     {/* Amount Input */}
-                    <div className="mb-4">
+                    <div className="mb-3 sm:mb-4">
                       <AmountInput
                         value={unstakeAmount}
                         onChange={handleUnstakeAmountChange}
@@ -312,7 +312,7 @@ export default function StakeCard() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-row gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-3">
                       {/* Unstake Specific Amount */}
                       <button
                         onClick={handleUnstakeAmount}
@@ -333,7 +333,7 @@ export default function StakeCard() {
                     </div>
 
                     {/* Info Message */}
-                    <div className="mt-3 p-2.5 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div className="p-2.5 bg-orange-50 border border-orange-200 rounded-lg">
                       <p className="font-sf text-xs text-orange-800">
                         <strong>Note:</strong> Unstaking takes ~30–37 hours (4 epochs).
                       </p>
@@ -345,9 +345,9 @@ export default function StakeCard() {
 
             {/* Unstaked NEAR Token Row - Only show if there's unstaked balance AND it's from our pool */}
             {unstaked && unstaked !== '0' && parseFloat(formatNearAmount(unstaked)) > 0 && (
-              <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
+              <div className="flex flex-row justify-center items-center gap-3 sm:gap-6 w-full min-h-11 bg-white">
                 {/* NEAR Icon */}
-                <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
+                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-none">
                   <img 
                     src="/icons/neartoken.svg" 
                     alt="NEAR Token" 
@@ -356,11 +356,11 @@ export default function StakeCard() {
                 </div>
                 
                 {/* Token Info */}
-                <div className="flex flex-col justify-center items-start flex-1">
-                  <div className="w-full font-sf font-semibold text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
+                <div className="flex flex-col justify-center items-start flex-1 min-w-0">
+                  <div className="w-full font-sf font-semibold text-sm leading-4 sm:leading-5 tracking-[-0.01em] text-[#3F4246] truncate">
                     {formatNearAmount(unstaked)} NEAR (Unstaking)
                   </div>
-                  <div className="w-full font-sf font-semibold text-xs leading-4 tracking-[-0.01em] text-[#999999]">
+                  <div className="w-full font-sf font-semibold text-xs leading-3 sm:leading-4 tracking-[-0.01em] text-[#999999]">
                     {canWithdraw ? 'Ready to withdraw' : 'Pending (~30-37 hours)'}
                   </div>
                 </div>
@@ -370,12 +370,12 @@ export default function StakeCard() {
                   <button
                     onClick={handleWithdraw}
                     disabled={withdrawLoading}
-                    className="flex flex-row justify-center items-center px-4 py-2 gap-2 w-[95px] h-10 bg-[#5F8AFA] rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-white hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-none"
+                    className="flex flex-row justify-center items-center px-3 sm:px-4 py-2 gap-2 w-20 sm:w-[95px] h-8 sm:h-10 bg-[#5F8AFA] rounded-[100px] font-sf font-medium text-xs sm:text-base leading-4 sm:leading-6 text-center tracking-[-0.01em] text-white hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-none"
                   >
                     {withdrawLoading ? 'Withdrawing...' : 'Withdraw'}
                   </button>
                 ) : (
-                  <div className="w-[95px] h-10 flex items-center justify-center">
+                  <div className="w-20 sm:w-[95px] h-8 sm:h-10 flex items-center justify-center">
                     <span className="font-sf font-normal text-xs text-[#999999]">Waiting</span>
                   </div>
                 )}
@@ -384,8 +384,8 @@ export default function StakeCard() {
             
             {/* Show message if no staked or unstaked balance */}
             {(!staked || staked === '0' || parseFloat(formatNearAmount(staked)) <= 0) && (!unstaked || unstaked === '0') && (
-              <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
-                <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
+              <div className="flex flex-row justify-center items-center gap-3 sm:gap-6 w-full min-h-11 bg-white">
+                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-none">
                   <img 
                     src="/icons/neartoken.svg" 
                     alt="NEAR Token" 
@@ -393,10 +393,10 @@ export default function StakeCard() {
                   />
                 </div>
                 <div className="flex flex-col justify-center items-start flex-1">
-                  <div className="w-full font-sf font-semibold text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
+                  <div className="w-full font-sf font-semibold text-sm leading-4 sm:leading-5 tracking-[-0.01em] text-[#3F4246]">
                     0 NEAR
                   </div>
-                  <div className="w-full font-sf font-semibold text-xs leading-4 tracking-[-0.01em] text-[#999999]">
+                  <div className="w-full font-sf font-semibold text-xs leading-3 sm:leading-4 tracking-[-0.01em] text-[#999999]">
                     No staked balance yet
                   </div>
                 </div>
@@ -404,9 +404,9 @@ export default function StakeCard() {
             )}
             
             {/* NPRO Token Row */}
-            <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
+            <div className="flex flex-row justify-center items-center gap-3 sm:gap-6 w-full min-h-11 bg-white">
               {/* NPRO Icon */}
-              <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-none">
                 <img 
                   src="/icons/npro-token.svg" 
                   alt="NPRO Token" 
@@ -416,10 +416,10 @@ export default function StakeCard() {
               
               {/* Token Info */}
               <div className="flex flex-col justify-center items-start flex-1">
-                <div className="w-full font-sf font-medium text-xs leading-4 tracking-[-0.01em] text-[#3F4246]">
+                <div className="w-full font-sf font-medium text-xs leading-3 sm:leading-4 tracking-[-0.01em] text-[#3F4246]">
                   NPRO earned
                 </div>
-                <div className="w-full font-sf font-semibold text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
+                <div className="w-full font-sf font-semibold text-sm leading-4 sm:leading-5 tracking-[-0.01em] text-[#3F4246]">
                   Coming soon...
                 </div>
               </div>
@@ -431,16 +431,16 @@ export default function StakeCard() {
         <div className="flex flex-col items-start p-3 gap-3 w-full bg-[rgba(95,138,250,0.2)] rounded-xl">
           <div className="flex flex-row items-start gap-3 w-full">
             {/* Info Icon */}
-            <svg className="w-6 h-6 flex-none mt-0" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 flex-none mt-0" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="#3F4246" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             
             {/* Text Content */}
-            <div className="flex flex-col justify-center items-start flex-1">
-              <div className="w-full font-sf font-medium text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
+            <div className="flex flex-col justify-center items-start flex-1 min-w-0">
+              <div className="w-full font-sf font-medium text-sm leading-4 sm:leading-5 tracking-[-0.01em] text-[#3F4246]">
                 NPRO Token Distribution
               </div>
-              <div className="w-full font-sf font-normal text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
+              <div className="w-full font-sf font-normal text-xs sm:text-sm leading-4 sm:leading-5 tracking-[-0.01em] text-[#3F4246] mt-1">
                 NPRO tokens are distributed to stakers based on their staking duration and amount. The longer you stake, the more NPRO you earn.
               </div>
             </div>
@@ -488,27 +488,27 @@ export default function StakeCard() {
       {/* Content aligned with header padding */}
       <div className="flex flex-col items-start px-0 py-1 gap-4 w-full">
         {/* Main Title */}
-        <h3 className="font-sf font-medium text-2xl leading-8 tracking-[-0.01em] text-[#3F4246]">
+        <h3 className="font-sf font-medium text-lg sm:text-xl md:text-2xl leading-6 sm:leading-7 md:leading-8 tracking-[-0.01em] text-[#3F4246]">
           Gain an advantage by being among the first to get NPRO
         </h3>
         
         {/* Cards Container */}
-        <div className="flex flex-col items-start gap-5 w-full">
+        <div className="flex flex-col items-start gap-4 sm:gap-5 w-full">
           {/* Chart and Description Row */}
-          <div className="flex flex-row items-start gap-5 w-full">
+          <div className="flex flex-col lg:flex-row items-start gap-4 lg:gap-5 w-full">
             {/* Chart Image */}
-            <div className="w-[357px] h-[247px] flex-none">
+            <div className="w-full lg:w-[357px] h-auto lg:h-[247px] flex-none">
               <img 
                 src="/icons/BondingCurve.svg" 
                 alt="Bonding Curve Chart" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-lg"
                 style={{ filter: 'drop-shadow(0px 4px 16px rgba(63, 66, 70, 0.03))' }}
               />
             </div>
             
             {/* Description Text */}
-            <div className="flex-1">
-              <p className="font-sf font-normal text-base leading-6 tracking-[-0.01em] text-[#999999]">
+            <div className="flex-1 w-full lg:w-auto">
+              <p className="font-sf font-normal text-sm sm:text-base leading-5 sm:leading-6 tracking-[-0.01em] text-[#999999]">
                 NPRO is the NEAR Mobile token. It's value is backed through NEAR staking and will be tradable as any other popular cryptocurrencies on the app and exchanges. It will unlock superpowers on the NEAR app reducing fees and providing a complete toolking for trading crypto.
               </p>
             </div>
@@ -516,7 +516,7 @@ export default function StakeCard() {
           
           {/* Long Description Text */}
           <div className="w-full">
-            <p className="font-sf font-normal text-base leading-6 tracking-[-0.01em] text-[#999999]">
+            <p className="font-sf font-normal text-sm sm:text-base leading-5 sm:leading-6 tracking-[-0.01em] text-[#999999]">
               The amount of NPRO tokens released decreases every epoch following a bonding curve, rewarding early adopters with a decay parameter to only 25% on the last epoch to maintain the rewards interesting throughout the 5-year period. This creates natural scarcity as the token becomes progressively harder to obtain. This scarcity mechanism enhances long-term value proposition for NPRO holders, combined with required holdings to unlock premium features and the automatic liquidity mechanism, generating upward pressure to position NPRO as a strong investment opportunity.
             </p>
           </div>
@@ -529,39 +529,44 @@ export default function StakeCard() {
     <div className="w-full max-w-[760px] mx-auto">
       <div className="flex flex-col items-start w-full min-h-fit bg-white border border-[#E5E5E5] rounded-3xl overflow-hidden">
         {/* Tabs Header */}
-        <div className="h-20 border-b border-[#E5E5E5] bg-white w-full">
-          <div className="flex items-center justify-between px-0 pr-6 h-full">
-            <div className="flex items-center px-6 gap-6 h-full">
-              {tabs.map((tab, index) => {
-                const widths = ['w-[42px]', 'w-[88px]', 'w-[182px]']
-                const width = widths[index] || 'w-auto'
-                
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`relative flex justify-center items-center h-20 ${width} transition-colors font-sf ${
-                      tab.active 
-                        ? 'text-[#3F4246] font-medium border-b-2 border-[#5F8AFA]' 
-                        : index === 0
-                          ? 'text-[#999999] font-normal hover:text-[#3F4246]'
+        <div className="min-h-16 sm:h-20 border-b border-[#E5E5E5] bg-white w-full">
+          <div className="flex items-center justify-between px-0 pr-3 sm:pr-6 h-full">
+            {/* Tabs Container - Scrollable on mobile */}
+            <div className="flex-1 overflow-x-auto scrollbar-hide">
+              <div className="flex items-center px-3 sm:px-6 gap-3 sm:gap-6 h-16 sm:h-20 min-w-max">
+                {tabs.map((tab, index) => {
+                  // Responsive widths for tabs
+                  const getTabWidth = (index: number) => {
+                    if (index === 0) return 'w-auto min-w-[60px] sm:w-[42px]'
+                    if (index === 1) return 'w-auto min-w-[100px] sm:w-[88px]'
+                    return 'w-auto min-w-[160px] sm:w-[182px]'
+                  }
+                  
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`relative flex justify-center items-center h-16 sm:h-20 px-2 transition-colors font-sf whitespace-nowrap ${getTabWidth(index)} ${
+                        tab.active 
+                          ? 'text-[#3F4246] font-medium border-b-2 border-[#5F8AFA]' 
                           : 'text-[#999999] font-normal hover:text-[#3F4246]'
-                    }`}
-                    style={{
-                      fontSize: '16px',
-                      lineHeight: '24px',
-                      letterSpacing: '-0.01em',
-                      textAlign: 'center'
-                    }}
-                  >
-                    {tab.label}
-                  </button>
-                )
-              })}
+                      }`}
+                      style={{
+                        fontSize: '14px',
+                        lineHeight: '20px',
+                        letterSpacing: '-0.01em',
+                        textAlign: 'center'
+                      }}
+                    >
+                      <span className="sm:text-base sm:leading-6">{tab.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
             
             {/* Account Dropdown - Right side */}
-            <div className="flex items-center">
+            <div className="flex items-center flex-shrink-0 ml-2 sm:ml-0">
               {isConnected && accountId && (
                 <AccountDropdown accountId={accountId} walletName={walletName} onSignOut={signOut} />
               )}
@@ -570,7 +575,7 @@ export default function StakeCard() {
         </div>
 
         {/* Tab Content */}
-        <div className="p-6 w-full">
+        <div className="p-4 sm:p-6 w-full">
           {activeTab === 'stake' && renderStakeTab()}
           {activeTab === 'position' && renderPositionTab()}
           {activeTab === 'why' && renderWhyTab()}

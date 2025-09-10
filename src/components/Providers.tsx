@@ -18,7 +18,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <RpcStatus />
+      {/* Desktop RPC Status - hidden on mobile since it's in the navbar burger menu */}
+      <div className="hidden lg:block">
+        <RpcStatus isMobile={false} />
+      </div>
     </QueryClientProvider>
   )
 }
