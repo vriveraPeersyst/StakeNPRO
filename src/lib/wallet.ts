@@ -17,16 +17,19 @@ export const setupWallet = async () => {
   if (selector) return { selector, modal }
 
   selector = await setupWalletSelector({
-    network: NETWORK_ID as 'mainnet' | 'testnet',
+    network: 'mainnet',
+    fallbackRpcUrls: ['https://rpc.shitzuapes.xyz/'],
     modules: [
       setupMyNearWallet() as any,
       setupLedger() as any,
       setupHereWallet() as any,
-      setupHotWallet() as any, 
+      setupHotWallet() as any,
       setupMeteorWallet() as any,
       setupNearMobileWallet() as any,
     ],
   })
+
+  selector.options.network.nodeUrl = 'https://rpc.shitzuapes.xyz/'
 
   modal = setupModal(selector, {
     contractId: CONTRACT_ID,

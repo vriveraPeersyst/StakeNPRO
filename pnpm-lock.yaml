@@ -15,8 +15,8 @@ dependencies:
     specifier: ^8.9.13
     version: 8.10.2(near-api-js@4.0.4)(typescript@5.9.2)
   '@near-wallet-selector/ledger':
-    specifier: ^8.9.13
-    version: 8.10.2(typescript@5.9.2)
+    specifier: npm:@peersyst/ws-ledger@^8.9.18
+    version: /@peersyst/ws-ledger@8.9.18(typescript@5.9.2)
   '@near-wallet-selector/meteor-wallet':
     specifier: ^8.9.13
     version: 8.10.2
@@ -1552,22 +1552,6 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@near-wallet-selector/ledger@8.10.2(typescript@5.9.2):
-    resolution: {integrity: sha512-o3pyS8JIvjbQtceF2ZP+c0aLXOC6nXDA/pzGEP2GaWiJiHlGKw9gf7FJBe2M+cvKQlNetjcVp23ogVKXTSlCpQ==}
-    dependencies:
-      '@ledgerhq/hw-transport': 6.30.3
-      '@ledgerhq/hw-transport-webhid': 6.29.4
-      '@near-wallet-selector/core': 8.10.2(near-api-js@4.0.3)
-      '@near-wallet-selector/wallet-utils': 8.10.2(near-api-js@4.0.3)
-      borsh: 1.0.0
-      is-mobile: 4.0.0
-      near-api-js: 4.0.3
-      ts-essentials: 7.0.3(typescript@5.9.2)
-    transitivePeerDependencies:
-      - encoding
-      - typescript
-    dev: false
-
   /@near-wallet-selector/meteor-wallet@8.10.2:
     resolution: {integrity: sha512-n4rqkmuCkLYcB6pu3zIQks+tJ9G7Vl4I7e+FpM9N2CFLUXS+QG39OrAVNpQFdV8FXwN4FIV0/0wHf1usExaRaA==}
     dependencies:
@@ -2770,6 +2754,47 @@ packages:
       - '@swc/helpers'
       - encoding
       - napi-wasm
+    dev: false
+
+  /@peersyst/ws-core@8.9.18(near-api-js@4.0.3):
+    resolution: {integrity: sha512-tvIC1sJBoFLJROj5asXINnK0L5NbJHPq9vvJJYXebUBadxRtWiYO9E3ZnCBwzsGMJBVmm1t1GHYZcdlbpEgVMg==}
+    peerDependencies:
+      '@near-js/providers': latest
+      near-api-js: 4.0.3
+    dependencies:
+      borsh: 0.7.0
+      events: 3.3.0
+      js-sha256: 0.9.0
+      near-api-js: 4.0.3
+      rxjs: 7.8.1
+    dev: false
+
+  /@peersyst/ws-ledger@8.9.18(typescript@5.9.2):
+    resolution: {integrity: sha512-OcdJTxYwJSKUN1pJwxPzIQGai/RRrPUQFCbUu+0XpO+lYC54WLHn05TXuJVg1UUwsq2elMGpPFqizxrOhdQZxw==}
+    dependencies:
+      '@ledgerhq/hw-transport': 6.30.3
+      '@ledgerhq/hw-transport-webhid': 6.29.4
+      '@peersyst/ws-core': 8.9.18(near-api-js@4.0.3)
+      '@peersyst/ws-wallet-utils': 8.9.18(near-api-js@4.0.3)
+      borsh: 0.7.0
+      is-mobile: 4.0.0
+      near-api-js: 4.0.3
+      ts-essentials: 7.0.3(typescript@5.9.2)
+    transitivePeerDependencies:
+      - '@near-js/providers'
+      - encoding
+      - typescript
+    dev: false
+
+  /@peersyst/ws-wallet-utils@8.9.18(near-api-js@4.0.3):
+    resolution: {integrity: sha512-53fEgAix33tma84GMxFBbBG1dsyZlkglaKiWLj9S/908jMDfpZasgyFWxrn7j0iKFgsDM2f1RXRHIPBo5R84Fg==}
+    peerDependencies:
+      near-api-js: 4.0.3
+    dependencies:
+      '@peersyst/ws-core': 8.9.18(near-api-js@4.0.3)
+      near-api-js: 4.0.3
+    transitivePeerDependencies:
+      - '@near-js/providers'
     dev: false
 
   /@pkgjs/parseargs@0.11.0:
