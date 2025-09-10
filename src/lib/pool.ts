@@ -88,12 +88,36 @@ export async function depositAndStake(selector: WalletSelector, amountNear: stri
   return result?.transaction?.hash || ''
 }
 
-export async function unstake(selector: WalletSelector, amountNear?: string): Promise<string> {
+export async function unstake(selector: WalletSelector, amountNear: string): Promise<string> {
   const wallet = await selector.wallet()
   
-  const args = amountNear 
-    ? { amount: utils.format.parseNearAmount(amountNear) }
-    : {}
+  const args = { amount: utils.format.parseNearAmount(amountNear) }
+
+  const result = await wallet.signAndSendTransaction({
+    receiverId: POOL_ID,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: 'unstake',
+          args,
+          gas: GAS,
+          deposit: '0',
+        },
+      },
+    ],
+  })
+
+  return result?.transaction?.hash || ''
+}
+
+export async function unstakeAll(selector: WalletSelector, accountId: string): Promise<string> {
+  const wallet = await selector.wallet()
+  
+  // Get the current staked balance in yoctoNEAR
+  const stakedBalanceYocto = await getAccountStakedBalance(accountId)
+  
+  const args = { amount: stakedBalanceYocto }
 
   const result = await wallet.signAndSendTransaction({
     receiverId: POOL_ID,

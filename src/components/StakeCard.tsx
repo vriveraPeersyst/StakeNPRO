@@ -27,7 +27,7 @@ export default function StakeCard() {
   const { staked, unstaked, total, canWithdraw, isLoading: balancesLoading } = useBalances()
   const { balance, calculatePercentageAmount, getMaxAmount, isLoading: walletBalanceLoading } = useWalletBalance()
   const { stake, isLoading: stakeLoading, txHash: stakeTxHash } = useStake()
-  const { unstake, isLoading: unstakeLoading, txHash: unstakeTxHash } = useUnstake()
+  const { unstake, unstakeAll, isLoading: unstakeLoading, txHash: unstakeTxHash } = useUnstake()
   const { withdraw, isLoading: withdrawLoading, txHash: withdrawTxHash } = useWithdraw()
 
   // Fetch NEAR price for fiat display
@@ -80,9 +80,8 @@ export default function StakeCard() {
 
   const handleUnstakeAll = () => {
     if (!staked || staked === '0' || parseFloat(formatNearAmount(staked)) <= 0) return
-    // Convert yoctoNEAR to NEAR format for the unstake function
-    const stakedInNear = formatNearAmount(staked)
-    unstake(stakedInNear) // Unstake all
+    // Use the dedicated unstakeAll function that gets the exact balance
+    unstakeAll()
     setShowUnstakeModal(false)
   }
 

@@ -7,12 +7,17 @@ interface RpcEndpoint {
   isBlacklisted: boolean
 }
 
+interface RpcStatusChangeListener {
+  (newUrl: string): void
+}
+
 class RpcManager {
   private endpoints: RpcEndpoint[] = []
   private currentIndex: number = 0
   private readonly maxFailures = 3
   private readonly blacklistDuration = 5 * 60 * 1000 // 5 minutes
   private provider: providers.JsonRpcProvider | null = null
+  private listeners: RpcStatusChangeListener[] = []
 
   constructor() {
     this.initializeEndpoints()
@@ -43,9 +48,35 @@ class RpcManager {
   private setupProvider() {
     const currentEndpoint = this.getCurrentEndpoint()
     if (currentEndpoint) {
+      console.log(`Setting up provider for: ${currentEndpoint.url}`)
       this.provider = new providers.JsonRpcProvider({
         url: currentEndpoint.url,
       })
+      
+      // Notify listeners of the change
+      this.notifyListeners(currentEndpoint.url)
+    } else {
+      console.warn('No current endpoint available for provider setup')
+    }
+  }
+
+  private notifyListeners(newUrl: string) {
+    this.listeners.forEach(listener => {
+      try {
+        listener(newUrl)
+      } catch (error) {
+        console.error('Error notifying RPC change listener:', error)
+      }
+    })
+  }
+
+  addStatusChangeListener(listener: RpcStatusChangeListener) {
+    this.listeners.push(listener)
+    return () => {
+      const index = this.listeners.indexOf(listener)
+      if (index > -1) {
+        this.listeners.splice(index, 1)
+      }
     }
   }
 
@@ -169,6 +200,30 @@ class RpcManager {
         lastFailure: ep.lastFailure
       }))
     }
+  }
+
+  setCurrentEndpoint(url: string): boolean {
+    const endpointIndex = this.endpoints.findIndex(ep => ep.url === url)
+    if (endpointIndex === -1) {
+      console.warn(`Endpoint ${url} not found`)
+      return false
+    }
+
+    // Clear blacklist for the selected endpoint if it was blacklisted
+    this.endpoints[endpointIndex].isBlacklisted = false
+    this.endpoints[endpointIndex].failures = 0
+    this.endpoints[endpointIndex].lastFailure = undefined
+
+    // Set the current index to the selected endpoint in the available endpoints array
+    // We need to recalculate available endpoints after clearing blacklist
+    const availableEndpoints = this.endpoints.filter(ep => !ep.isBlacklisted)
+    const availableIndex = availableEndpoints.findIndex(ep => ep.url === url)
+    this.currentIndex = availableIndex >= 0 ? availableIndex : 0
+
+    // Update the provider
+    this.setupProvider()
+    console.log(`Manually switched to RPC endpoint: ${url}`)
+    return true
   }
 }
 
