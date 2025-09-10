@@ -33,9 +33,28 @@ export function useRpcStatus() {
     return rpcManager.setCurrentEndpoint(url)
   }
 
+  const addCustomRpc = (url: string, makeItPrimary: boolean = false) => {
+    return rpcManager.addCustomEndpoint(url, makeItPrimary)
+  }
+
+  const removeRpc = (url: string) => {
+    return rpcManager.removeEndpoint(url)
+  }
+
+  const clearPreferences = () => {
+    rpcManager.clearUserPreferences()
+    // Force a page reload to reset to defaults
+    if (typeof window !== 'undefined') {
+      window.location.reload()
+    }
+  }
+
   return {
     currentUrl,
     status,
-    switchRpc
+    switchRpc,
+    addCustomRpc,
+    removeRpc,
+    clearPreferences
   }
 }

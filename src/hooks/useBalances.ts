@@ -21,12 +21,7 @@ export function useBalances() {
     refetchInterval: 45000, // Increased to 45 seconds to reduce requests
     staleTime: 30000, // Data stays fresh for 30 seconds
     gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
-    retry: (failureCount, error) => {
-      if (error?.message?.includes('rate') || error?.message?.includes('429')) {
-        return false
-      }
-      return failureCount < 2
-    },
+    retry: false, // Let RPC manager handle all retries internally
   })
 
   const unstakedQuery = useQuery({
@@ -36,12 +31,7 @@ export function useBalances() {
     refetchInterval: 45000,
     staleTime: 30000,
     gcTime: 5 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (error?.message?.includes('rate') || error?.message?.includes('429')) {
-        return false
-      }
-      return failureCount < 2
-    },
+    retry: false, // Let RPC manager handle all retries internally
   })
 
   const totalQuery = useQuery({
@@ -51,12 +41,7 @@ export function useBalances() {
     refetchInterval: 45000,
     staleTime: 30000,
     gcTime: 5 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (error?.message?.includes('rate') || error?.message?.includes('429')) {
-        return false
-      }
-      return failureCount < 2
-    },
+    retry: false, // Let RPC manager handle all retries internally
   })
 
   const canWithdrawQuery = useQuery({
@@ -66,12 +51,7 @@ export function useBalances() {
     refetchInterval: 45000,
     staleTime: 30000,
     gcTime: 5 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (error?.message?.includes('rate') || error?.message?.includes('429')) {
-        return false
-      }
-      return failureCount < 2
-    },
+    retry: false, // Let RPC manager handle all retries internally
   })
 
   return {

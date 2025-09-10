@@ -18,15 +18,91 @@ class RpcManager {
   private readonly blacklistDuration = 5 * 60 * 1000 // 5 minutes
   private provider: providers.JsonRpcProvider | null = null
   private listeners: RpcStatusChangeListener[] = []
+  private readonly STORAGE_KEY = 'stakeNPRO_rpc_config'
 
   constructor() {
     this.initializeEndpoints()
+    this.loadUserPreferences()
     this.setupProvider()
+  }
+
+  private saveUserPreferences() {
+    if (typeof window === 'undefined') return
+
+    try {
+      const config = {
+        primaryRpcUrl: this.getCurrentEndpoint()?.url,
+        customEndpoints: this.endpoints
+          .filter(ep => !this.isDefaultEndpoint(ep.url))
+          .map(ep => ep.url),
+        timestamp: Date.now()
+      }
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config))
+    } catch (error) {
+      console.warn('Failed to save RPC preferences:', error)
+    }
+  }
+
+  private loadUserPreferences() {
+    if (typeof window === 'undefined') return
+
+    try {
+      const saved = localStorage.getItem(this.STORAGE_KEY)
+      if (!saved) return
+
+      const config = JSON.parse(saved)
+      
+      // Add any custom endpoints that were saved
+      if (config.customEndpoints && Array.isArray(config.customEndpoints)) {
+        config.customEndpoints.forEach((url: string) => {
+          if (!this.endpoints.some(ep => ep.url === url)) {
+            this.endpoints.push({
+              url,
+              failures: 0,
+              isBlacklisted: false
+            })
+          }
+        })
+      }
+
+      // Set the primary RPC if it was saved and exists
+      if (config.primaryRpcUrl) {
+        const savedPrimaryIndex = this.endpoints.findIndex(ep => ep.url === config.primaryRpcUrl)
+        if (savedPrimaryIndex !== -1) {
+          // Move the saved primary to the front
+          const primaryEndpoint = this.endpoints.splice(savedPrimaryIndex, 1)[0]
+          this.endpoints.unshift(primaryEndpoint)
+          this.currentIndex = 0
+          console.log(`Restored user's preferred RPC: ${config.primaryRpcUrl}`)
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load RPC preferences:', error)
+    }
+  }
+
+  private isDefaultEndpoint(url: string): boolean {
+    const defaultEndpoints = [
+      process.env.NEXT_PUBLIC_RPC_URL || 'https://rpc.mainnet.near.org',
+      'https://near.lava.build',
+      'https://near.blockpi.network/v1/rpc/public',
+      'https://rpc.shitzuapes.xyz',
+      'https://near-mainnet.api.pagoda.co/rpc/v1'
+    ]
+    return defaultEndpoints.includes(url)
   }
 
   private initializeEndpoints() {
     const primaryUrl = process.env.NEXT_PUBLIC_RPC_URL || 'https://rpc.mainnet.near.org'
     const fallbackUrls = (process.env.NEXT_PUBLIC_RPC_FALLBACKS || '').split(',').filter(Boolean)
+    
+    // Default fallback endpoints if none provided
+    const defaultFallbacks = [
+      'https://near.lava.build',
+      'https://near.blockpi.network/v1/rpc/public',
+      'https://rpc.shitzuapes.xyz',
+      'https://near-mainnet.api.pagoda.co/rpc/v1'
+    ]
     
     // Add primary endpoint
     this.endpoints.push({
@@ -35,14 +111,23 @@ class RpcManager {
       isBlacklisted: false
     })
 
-    // Add fallback endpoints
-    fallbackUrls.forEach(url => {
-      this.endpoints.push({
-        url: url.trim(),
-        failures: 0,
-        isBlacklisted: false
-      })
+    // Add custom fallback endpoints if provided, otherwise use defaults
+    const fallbacks = fallbackUrls.length > 0 ? fallbackUrls : defaultFallbacks
+    
+    fallbacks.forEach(url => {
+      const cleanUrl = url.trim()
+      // Avoid duplicates
+      if (!this.endpoints.some(ep => ep.url === cleanUrl)) {
+        this.endpoints.push({
+          url: cleanUrl,
+          failures: 0,
+          isBlacklisted: false
+        })
+      }
     })
+
+    console.log(`Initialized RPC manager with ${this.endpoints.length} endpoints:`, 
+      this.endpoints.map(ep => ep.url))
   }
 
   private setupProvider() {
@@ -131,24 +216,56 @@ class RpcManager {
     const currentEndpoint = this.getCurrentEndpoint()
     if (!currentEndpoint) return
 
-    // Check if it's a rate limiting error
+    // Enhanced rate limiting error detection
     const isRateLimit = 
       error?.message?.includes('rate') ||
       error?.message?.includes('429') ||
       error?.code === 429 ||
-      error?.message?.includes('Too many requests')
+      error?.message?.includes('Too many requests') ||
+      error?.message?.includes('rate limit') ||
+      error?.message?.includes('Rate limit') ||
+      error?.message?.includes('throttle') ||
+      error?.message?.includes('exceeded') ||
+      error?.status === 429 ||
+      (error?.response && error.response.status === 429) ||
+      // Check for specific NEAR RPC rate limiting responses
+      error?.message?.includes('request limit') ||
+      error?.message?.includes('quota exceeded') ||
+      // Check for network timeout which could indicate rate limiting
+      (error?.message?.includes('timeout') && currentEndpoint.failures > 0)
 
-    if (isRateLimit) {
-      console.warn(`Rate limited on ${currentEndpoint.url}, switching...`)
+    // Also consider connection errors as potential rate limiting if we've had recent failures
+    const isConnectionError = 
+      error?.message?.includes('ECONNRESET') ||
+      error?.message?.includes('ECONNREFUSED') ||
+      error?.message?.includes('network') ||
+      error?.code === 'ECONNRESET' ||
+      error?.code === 'ECONNREFUSED'
+
+    const shouldSwitch = isRateLimit || (isConnectionError && currentEndpoint.failures > 0)
+
+    if (shouldSwitch) {
+      console.warn(`${isRateLimit ? 'Rate limited' : 'Connection error'} on ${currentEndpoint.url}, switching...`)
       currentEndpoint.failures += 1
       currentEndpoint.lastFailure = Date.now()
       
-      if (currentEndpoint.failures >= this.maxFailures) {
+      // Be more aggressive with blacklisting for rate limits
+      if (isRateLimit || currentEndpoint.failures >= this.maxFailures) {
         currentEndpoint.isBlacklisted = true
         console.warn(`Blacklisted ${currentEndpoint.url} for ${this.blacklistDuration / 1000}s`)
       }
       
       this.switchToNextEndpoint()
+    } else {
+      // For other errors, still increment failures but don't switch immediately
+      currentEndpoint.failures += 1
+      currentEndpoint.lastFailure = Date.now()
+      
+      if (currentEndpoint.failures >= this.maxFailures) {
+        currentEndpoint.isBlacklisted = true
+        console.warn(`Blacklisted ${currentEndpoint.url} after ${this.maxFailures} failures`)
+        this.switchToNextEndpoint()
+      }
     }
   }
 
@@ -157,25 +274,44 @@ class RpcManager {
       throw new Error('No RPC provider available')
     }
 
-    const maxRetries = this.endpoints.length
+    const maxRetries = Math.min(this.endpoints.length, 5) // Limit to 5 retries max
     let lastError: any
+    let attemptCount = 0
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
+      attemptCount++
+      
       try {
-        return await requestFn(this.provider)
+        console.log(`RPC request attempt ${attemptCount} using ${this.getCurrentUrl()}`)
+        const result = await requestFn(this.provider)
+        
+        // If successful, reset failure count for current endpoint
+        const currentEndpoint = this.getCurrentEndpoint()
+        if (currentEndpoint && currentEndpoint.failures > 0) {
+          console.log(`Request succeeded, resetting failure count for ${currentEndpoint.url}`)
+          currentEndpoint.failures = 0
+        }
+        
+        return result
       } catch (error) {
-        console.warn(`RPC request failed on attempt ${attempt + 1}:`, error)
+        console.warn(`RPC request failed on attempt ${attemptCount}:`, error)
         lastError = error
         
+        // Handle the failure and potentially switch endpoints
         this.handleFailure(error)
         
-        // If we have more attempts and more endpoints, try next one
+        // If we have more attempts and this was a rate limit or connection error, continue with next endpoint
         if (attempt < maxRetries - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))) // Exponential backoff
+          const waitTime = Math.min(1000 * Math.pow(2, attempt), 5000) // Exponential backoff, max 5s
+          console.log(`Waiting ${waitTime}ms before retry...`)
+          await new Promise(resolve => setTimeout(resolve, waitTime))
         }
       }
     }
 
+    // If all attempts failed, throw the last error
+    const errorMessage = lastError?.message || 'Unknown RPC error'
+    console.error(`All ${maxRetries} RPC attempts failed. Last error: ${errorMessage}`)
     throw lastError || new Error('All RPC endpoints failed')
   }
 
@@ -197,9 +333,89 @@ class RpcManager {
         url: ep.url,
         failures: ep.failures,
         isBlacklisted: ep.isBlacklisted,
-        lastFailure: ep.lastFailure
+        lastFailure: ep.lastFailure,
+        isDefault: this.isDefaultEndpoint(ep.url)
       }))
     }
+  }
+
+  addCustomEndpoint(url: string, makeItPrimary: boolean = false): boolean {
+    const cleanUrl = url.trim()
+    
+    // Validate URL format
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      console.warn('Invalid RPC URL format')
+      return false
+    }
+
+    // Check if endpoint already exists
+    if (this.endpoints.some(ep => ep.url === cleanUrl)) {
+      console.warn('RPC endpoint already exists')
+      // If it exists and we want to make it primary, just switch to it
+      if (makeItPrimary) {
+        return this.setCurrentEndpoint(cleanUrl)
+      }
+      return false
+    }
+
+    // Add the new endpoint
+    const newEndpoint: RpcEndpoint = {
+      url: cleanUrl,
+      failures: 0,
+      isBlacklisted: false
+    }
+
+    if (makeItPrimary) {
+      // Insert at the beginning to make it primary
+      this.endpoints.unshift(newEndpoint)
+      this.currentIndex = 0
+      this.setupProvider()
+      console.log(`Added and switched to new primary RPC endpoint: ${cleanUrl}`)
+    } else {
+      // Add to the end
+      this.endpoints.push(newEndpoint)
+      console.log(`Added new RPC endpoint: ${cleanUrl}`)
+    }
+
+    // Save user preferences
+    this.saveUserPreferences()
+
+    return true
+  }
+
+  removeEndpoint(url: string): boolean {
+    const index = this.endpoints.findIndex(ep => ep.url === url)
+    if (index === -1) {
+      console.warn(`Endpoint ${url} not found`)
+      return false
+    }
+
+    // Don't allow removing the last endpoint
+    if (this.endpoints.length <= 1) {
+      console.warn('Cannot remove the last RPC endpoint')
+      return false
+    }
+
+    // If we're removing the current endpoint, switch to another one first
+    const currentEndpoint = this.getCurrentEndpoint()
+    if (currentEndpoint && currentEndpoint.url === url) {
+      this.switchToNextEndpoint()
+    }
+
+    // Remove the endpoint
+    this.endpoints.splice(index, 1)
+    
+    // Adjust currentIndex if necessary
+    if (this.currentIndex >= this.endpoints.length) {
+      this.currentIndex = 0
+    }
+
+    console.log(`Removed RPC endpoint: ${url}`)
+    
+    // Save user preferences
+    this.saveUserPreferences()
+    
+    return true
   }
 
   setCurrentEndpoint(url: string): boolean {
@@ -223,7 +439,22 @@ class RpcManager {
     // Update the provider
     this.setupProvider()
     console.log(`Manually switched to RPC endpoint: ${url}`)
+    
+    // Save user preferences
+    this.saveUserPreferences()
+    
     return true
+  }
+
+  clearUserPreferences() {
+    if (typeof window === 'undefined') return
+
+    try {
+      localStorage.removeItem(this.STORAGE_KEY)
+      console.log('RPC user preferences cleared')
+    } catch (error) {
+      console.warn('Failed to clear RPC preferences:', error)
+    }
   }
 }
 

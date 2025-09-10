@@ -1,8 +1,6 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState } from 'react'
 import { Metadata } from 'next'
 import './globals.css'
-import { RpcStatus } from '@/components/RpcStatus'
+import { Providers } from '@/components/Providers'
 
 export const metadata: Metadata = {
   title: 'NPRO Stake - Stake NEAR. Earn NPRO now.',
@@ -36,16 +34,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        gcTime: 1000 * 60 * 10, // 10 minutes
-        refetchOnWindowFocus: false,
-      },
-    },
-  }))
-
   return (
     <html lang="en">
       <head>
@@ -55,10 +43,9 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body>
-        <QueryClientProvider client={queryClient}>
+        <Providers>
           {children}
-          <RpcStatus />
-        </QueryClientProvider>
+        </Providers>
       </body>
     </html>
   )

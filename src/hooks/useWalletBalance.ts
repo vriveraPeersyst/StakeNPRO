@@ -16,12 +16,12 @@ export function useWalletBalance() {
     staleTime: 30000, // Data stays fresh for 30 seconds
     gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
     retry: (failureCount, error) => {
-      // Don't retry rate limiting errors, let RPC manager handle failover
-      if (error?.message?.includes('rate') || error?.message?.includes('429')) {
-        return false
-      }
-      return failureCount < 2
+      // Don't retry if RPC manager has already handled failover
+      // The RPC manager handles its own retries across different endpoints
+      console.log(`Balance query failed (attempt ${failureCount + 1}):`, error)
+      return false // Let RPC manager handle all retries internally
     },
+    retryDelay: 0, // No delay since we're not retrying
   })
 
   const balanceInNear = balanceQuery.data ? formatNearAmount(balanceQuery.data) : '0'

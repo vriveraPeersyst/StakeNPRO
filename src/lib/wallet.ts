@@ -17,8 +17,7 @@ export const setupWallet = async () => {
   if (selector) return { selector, modal }
 
   selector = await setupWalletSelector({
-    network: 'mainnet',
-    fallbackRpcUrls: ['https://rpc.shitzuapes.xyz/'],
+    network: NETWORK_ID as 'mainnet',
     modules: [
       setupMyNearWallet() as any,
       setupLedger() as any,
@@ -28,8 +27,6 @@ export const setupWallet = async () => {
       setupNearMobileWallet() as any,
     ],
   })
-
-  selector.options.network.nodeUrl = 'https://rpc.shitzuapes.xyz/'
 
   modal = setupModal(selector, {
     contractId: CONTRACT_ID,
