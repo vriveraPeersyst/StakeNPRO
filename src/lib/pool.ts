@@ -8,6 +8,7 @@ const GAS = '30000000000000' // 30 Tgas
 // Pool view methods
 export async function getAccountStakedBalance(accountId: string): Promise<string> {
   try {
+    console.log(`Fetching staked balance for ${accountId} from pool: ${POOL_ID}`)
     const result = await view<string>(POOL_ID, 'get_account_staked_balance', { account_id: accountId })
     return result || '0'
   } catch (error) {
@@ -18,7 +19,9 @@ export async function getAccountStakedBalance(accountId: string): Promise<string
 
 export async function getAccountUnstakedBalance(accountId: string): Promise<string> {
   try {
+    console.log(`Fetching unstaked balance for ${accountId} from pool: ${POOL_ID}`)
     const result = await view<string>(POOL_ID, 'get_account_unstaked_balance', { account_id: accountId })
+    console.log(`Unstaked balance for ${accountId} in pool ${POOL_ID}: ${result}`)
     return result || '0'
   } catch (error) {
     console.warn('Failed to get unstaked balance:', error)
@@ -28,7 +31,9 @@ export async function getAccountUnstakedBalance(accountId: string): Promise<stri
 
 export async function isAccountUnstakedBalanceAvailable(accountId: string): Promise<boolean> {
   try {
+    console.log(`Checking unstaked balance availability for ${accountId} from pool: ${POOL_ID}`)
     const result = await view<boolean>(POOL_ID, 'is_account_unstaked_balance_available', { account_id: accountId })
+    console.log(`Unstaked balance available for ${accountId} in pool ${POOL_ID}: ${result}`)
     return result || false
   } catch (error) {
     console.warn('Failed to check unstaked balance availability:', error)

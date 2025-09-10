@@ -9,6 +9,7 @@ interface WalletState {
   isConnected: boolean
   isLoading: boolean
   selector: WalletSelector | null
+  walletName?: string
 }
 
 export function useWallet(): WalletState & {
@@ -20,8 +21,20 @@ export function useWallet(): WalletState & {
     isConnected: false,
     isLoading: true,
     selector: null,
+    walletName: undefined,
   })
   const [modal, setModal] = useState<any>(null)
+
+  const getWalletName = async (selector: WalletSelector): Promise<string | undefined> => {
+    try {
+      if (!selector.isSignedIn()) return undefined
+      const wallet = await selector.wallet()
+      return wallet?.metadata?.name || wallet?.id
+    } catch (error) {
+      console.warn('Failed to get wallet name:', error)
+      return undefined
+    }
+  }
 
   useEffect(() => {
     initWallet()
@@ -56,6 +69,7 @@ export function useWallet(): WalletState & {
             ...prev,
             accountId: null,
             isConnected: false,
+            walletName: undefined,
           }))
           return
         }
@@ -67,18 +81,23 @@ export function useWallet(): WalletState & {
           ...prev,
           accountId: null,
           isConnected: false,
+          walletName: undefined,
         }))
       } else if (!state.isConnected && isSignedIn && accountId) {
+        const walletName = await getWalletName(state.selector!)
         setState(prev => ({
           ...prev,
           accountId,
           isConnected: true,
+          walletName,
         }))
       } else if (state.accountId !== accountId) {
+        const walletName = accountId ? await getWalletName(state.selector!) : undefined
         setState(prev => ({
           ...prev,
           accountId,
           isConnected: !!accountId,
+          walletName,
         }))
       }
     } catch (error) {
@@ -89,6 +108,7 @@ export function useWallet(): WalletState & {
           ...prev,
           accountId: null,
           isConnected: false,
+          walletName: undefined,
         }))
       }
     }
@@ -103,11 +123,13 @@ export function useWallet(): WalletState & {
       if (isSignedIn) {
         const accounts = await walletSelector.store.getState().accounts
         const accountId = accounts[0]?.accountId || null
+        const walletName = await getWalletName(walletSelector)
         setState({
           accountId,
           isConnected: !!accountId,
           isLoading: false,
           selector: walletSelector,
+          walletName,
         })
       } else {
         setState({
@@ -115,17 +137,20 @@ export function useWallet(): WalletState & {
           isConnected: false,
           isLoading: false,
           selector: walletSelector,
+          walletName: undefined,
         })
       }
 
       // Subscribe to wallet state changes
-      walletSelector.store.observable.subscribe((storeState: any) => {
+      walletSelector.store.observable.subscribe(async (storeState: any) => {
         const accountId = storeState.accounts[0]?.accountId || null
+        const walletName = accountId ? await getWalletName(walletSelector) : undefined
         setState(prev => ({
           ...prev,
           accountId,
           isConnected: !!accountId,
           isLoading: false,
+          walletName,
         }))
       })
     } catch (error) {
@@ -135,6 +160,7 @@ export function useWallet(): WalletState & {
         isConnected: false,
         isLoading: false,
         selector: null,
+        walletName: undefined,
       })
     }
   }
@@ -153,6 +179,7 @@ export function useWallet(): WalletState & {
         ...prev,
         accountId: null,
         isConnected: false,
+        walletName: undefined,
       }))
     } catch (error) {
       console.error('Error signing out:', error)
@@ -161,6 +188,7 @@ export function useWallet(): WalletState & {
         ...prev,
         accountId: null,
         isConnected: false,
+        walletName: undefined,
       }))
     }
   }

@@ -1,16 +1,18 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useWallet } from './useWallet'
 import { 
   getAccountStakedBalance, 
   getAccountUnstakedBalance, 
   getAccountTotalBalance,
-  isAccountUnstakedBalanceAvailable 
+  isAccountUnstakedBalanceAvailable,
+  formatNearAmount
 } from '@/lib/pool'
 
 export function useBalances() {
   const { accountId, isConnected } = useWallet()
+  const queryClient = useQueryClient()
 
   const stakedQuery = useQuery({
     queryKey: ['staked', accountId],
@@ -60,7 +62,7 @@ export function useBalances() {
   const canWithdrawQuery = useQuery({
     queryKey: ['canWithdraw', accountId],
     queryFn: () => accountId ? isAccountUnstakedBalanceAvailable(accountId) : Promise.resolve(false),
-    enabled: isConnected && !!accountId && (unstakedQuery.data !== '0'),
+    enabled: isConnected && !!accountId && (unstakedQuery.data !== '0') && (parseFloat(formatNearAmount(unstakedQuery.data || '0')) > 0),
     refetchInterval: 45000,
     staleTime: 30000,
     gcTime: 5 * 60 * 1000,
@@ -79,10 +81,19 @@ export function useBalances() {
     canWithdraw: canWithdrawQuery.data || false,
     isLoading: stakedQuery.isLoading || unstakedQuery.isLoading || totalQuery.isLoading,
     refetch: () => {
+      console.log('Refetching all balance queries for pool:', process.env.NEXT_PUBLIC_POOL_ID)
       stakedQuery.refetch()
       unstakedQuery.refetch()
       totalQuery.refetch()
       canWithdrawQuery.refetch()
+    },
+    // Force fresh data by invalidating cache
+    refreshBalances: () => {
+      console.log('Forcing fresh balance data from pool:', process.env.NEXT_PUBLIC_POOL_ID)
+      queryClient.removeQueries({ queryKey: ['staked', accountId] })
+      queryClient.removeQueries({ queryKey: ['unstaked', accountId] })
+      queryClient.removeQueries({ queryKey: ['total', accountId] })
+      queryClient.removeQueries({ queryKey: ['canWithdraw', accountId] })
     }
   }
 }

@@ -23,7 +23,7 @@ export default function StakeCard() {
   const [unstakeAmount, setUnstakeAmount] = useState('')
   const [unstakeSelectedPercentage, setUnstakeSelectedPercentage] = useState<string | null>(null)
   
-  const { isConnected, accountId, signIn, signOut } = useWallet()
+  const { isConnected, accountId, walletName, signIn, signOut } = useWallet()
   const { staked, unstaked, total, canWithdraw, isLoading: balancesLoading } = useBalances()
   const { balance, calculatePercentageAmount, getMaxAmount, isLoading: walletBalanceLoading } = useWalletBalance()
   const { stake, isLoading: stakeLoading, txHash: stakeTxHash } = useStake()
@@ -66,7 +66,7 @@ export default function StakeCard() {
   }
 
   const handleUnstake = () => {
-    if (!staked || staked === '0') return
+    if (!staked || staked === '0' || parseFloat(formatNearAmount(staked)) <= 0) return
     setShowUnstakeModal(true)
   }
 
@@ -79,7 +79,7 @@ export default function StakeCard() {
   }
 
   const handleUnstakeAll = () => {
-    if (!staked || staked === '0') return
+    if (!staked || staked === '0' || parseFloat(formatNearAmount(staked)) <= 0) return
     // Convert yoctoNEAR to NEAR format for the unstake function
     const stakedInNear = formatNearAmount(staked)
     unstake(stakedInNear) // Unstake all
@@ -94,7 +94,7 @@ export default function StakeCard() {
   }
 
   const handleUnstakePercentageClick = (percentage: string, value: number) => {
-    if (!staked || staked === '0') return
+    if (!staked || staked === '0' || parseFloat(formatNearAmount(staked)) <= 0) return
     const stakedInNear = parseFloat(formatNearAmount(staked))
     const amount = (stakedInNear * value).toFixed(6)
     setUnstakeAmount(amount)
@@ -102,7 +102,7 @@ export default function StakeCard() {
   }
 
   const handleUnstakeMaxClick = () => {
-    if (!staked || staked === '0') return
+    if (!staked || staked === '0' || parseFloat(formatNearAmount(staked)) <= 0) return
     const stakedInNear = formatNearAmount(staked)
     setUnstakeAmount(stakedInNear)
     setUnstakeSelectedPercentage('Max')
@@ -114,7 +114,7 @@ export default function StakeCard() {
 
   const tabs = [
     { id: 'stake' as Tab, label: 'Stake', active: activeTab === 'stake' },
-    { id: 'position' as Tab, label: 'My position', active: activeTab === 'position' },
+    { id: 'position' as Tab, label: 'My staking', active: activeTab === 'position' },
     { id: 'why' as Tab, label: 'Why stake to earn NPRO', active: activeTab === 'why' },
   ]
 
@@ -244,7 +244,7 @@ export default function StakeCard() {
           {/* Token List */}
           <div className="flex flex-col items-start gap-5 w-full">
             {/* Staked NEAR Token Row - Only show if there's staked balance */}
-            {staked && staked !== '0' && (
+            {staked && staked !== '0' && parseFloat(formatNearAmount(staked)) > 0 && (
               <div className="flex flex-col items-start gap-4 w-full">
                 <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
                   {/* NEAR Icon */}
@@ -344,8 +344,8 @@ export default function StakeCard() {
               </div>
             )}
 
-            {/* Unstaked NEAR Token Row - Only show if there's unstaked balance */}
-            {unstaked && unstaked !== '0' && (
+            {/* Unstaked NEAR Token Row - Only show if there's unstaked balance AND it's from our pool */}
+            {unstaked && unstaked !== '0' && parseFloat(formatNearAmount(unstaked)) > 0 && (
               <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
                 {/* NEAR Icon */}
                 <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
@@ -366,8 +366,8 @@ export default function StakeCard() {
                   </div>
                 </div>
                 
-                {/* Withdraw Button - Only show if ready */}
-                {canWithdraw ? (
+                {/* Withdraw Button - Only show if ready AND we have unstaked balance in this pool */}
+                {canWithdraw && parseFloat(formatNearAmount(unstaked)) > 0 ? (
                   <button
                     onClick={handleWithdraw}
                     disabled={withdrawLoading}
@@ -384,7 +384,7 @@ export default function StakeCard() {
             )}
             
             {/* Show message if no staked or unstaked balance */}
-            {(!staked || staked === '0') && (!unstaked || unstaked === '0') && (
+            {(!staked || staked === '0' || parseFloat(formatNearAmount(staked)) <= 0) && (!unstaked || unstaked === '0') && (
               <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
                 <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
                   <img 
@@ -564,7 +564,7 @@ export default function StakeCard() {
             {/* Account Dropdown - Right side */}
             <div className="flex items-center">
               {isConnected && accountId && (
-                <AccountDropdown accountId={accountId} onSignOut={signOut} />
+                <AccountDropdown accountId={accountId} walletName={walletName} onSignOut={signOut} />
               )}
             </div>
           </div>
