@@ -16,28 +16,60 @@ export function useBalances() {
     queryKey: ['staked', accountId],
     queryFn: () => accountId ? getAccountStakedBalance(accountId) : Promise.resolve('0'),
     enabled: isConnected && !!accountId,
-    refetchInterval: 30000, // 30 seconds
+    refetchInterval: 45000, // Increased to 45 seconds to reduce requests
+    staleTime: 30000, // Data stays fresh for 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+    retry: (failureCount, error) => {
+      if (error?.message?.includes('rate') || error?.message?.includes('429')) {
+        return false
+      }
+      return failureCount < 2
+    },
   })
 
   const unstakedQuery = useQuery({
     queryKey: ['unstaked', accountId],
     queryFn: () => accountId ? getAccountUnstakedBalance(accountId) : Promise.resolve('0'),
     enabled: isConnected && !!accountId,
-    refetchInterval: 30000,
+    refetchInterval: 45000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
+    retry: (failureCount, error) => {
+      if (error?.message?.includes('rate') || error?.message?.includes('429')) {
+        return false
+      }
+      return failureCount < 2
+    },
   })
 
   const totalQuery = useQuery({
     queryKey: ['total', accountId],
     queryFn: () => accountId ? getAccountTotalBalance(accountId) : Promise.resolve('0'),
     enabled: isConnected && !!accountId,
-    refetchInterval: 30000,
+    refetchInterval: 45000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
+    retry: (failureCount, error) => {
+      if (error?.message?.includes('rate') || error?.message?.includes('429')) {
+        return false
+      }
+      return failureCount < 2
+    },
   })
 
   const canWithdrawQuery = useQuery({
     queryKey: ['canWithdraw', accountId],
     queryFn: () => accountId ? isAccountUnstakedBalanceAvailable(accountId) : Promise.resolve(false),
     enabled: isConnected && !!accountId && (unstakedQuery.data !== '0'),
-    refetchInterval: 30000,
+    refetchInterval: 45000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
+    retry: (failureCount, error) => {
+      if (error?.message?.includes('rate') || error?.message?.includes('429')) {
+        return false
+      }
+      return failureCount < 2
+    },
   })
 
   return {

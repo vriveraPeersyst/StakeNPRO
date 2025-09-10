@@ -1,10 +1,9 @@
 'use client'
 
 export default function Navbar() {
-
   return (
     <nav className="w-full max-w-[760px] mx-auto px-4">
-      <div className="flex flex-row items-center p-2 gap-3 w-[760px] h-14 bg-white shadow-[0px_4px_16px_rgba(48,50,54,0.12)] rounded-xl">
+      <div className="flex flex-row items-center p-2 gap-3 w-full h-14 bg-white shadow-[0px_4px_16px_rgba(48,50,54,0.12)] rounded-xl">
         {/* Left - Logo */}
         <div className="flex flex-row items-center gap-3 w-60 h-10 flex-grow">
           <div className="flex flex-col justify-center items-center w-10 h-10 bg-gradient-to-r from-[#9797FF] to-[#17D9D4] rounded-[10px]">

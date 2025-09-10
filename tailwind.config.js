@@ -14,11 +14,13 @@ module.exports = {
           bgTop: '#F6F6F6',
           bgBottom: '#EEEEEE',
           header: '#F8F9FA',
-          text: '#1A1A1A',
+          text: '#3F4246',
           textSecondary: '#4A4A4A',
+          muted: '#999999',
           border: '#E1E5E9',
           card: '#FFFFFF',
           accent: '#F0F4F8',
+          chip: '#F6F6F6',
           cta: '#5F8AFA',
           success: '#22C55E',
           warning: '#F59E0B',
@@ -55,6 +57,7 @@ module.exports = {
       },
       fontFamily: {
         'sf': ['SF Pro', 'system-ui', 'sans-serif'],
+        'sf-mono': ['SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
       },
       lineHeight: {
         '12': '3rem',

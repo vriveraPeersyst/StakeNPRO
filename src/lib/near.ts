@@ -1,15 +1,13 @@
 import { setupWallet } from '@/lib/wallet'
 import { providers } from 'near-api-js'
+import { rpcManager } from './rpcManager'
 
 const NETWORK_ID = process.env.NEXT_PUBLIC_NETWORK_ID || 'mainnet'
-const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || 'https://rpc.mainnet.near.org'
 
-// Initialize NEAR connection
-export const provider = new providers.JsonRpcProvider({
-  url: RPC_URL,
-})
+// Get provider from RPC manager
+export const getProvider = () => rpcManager.getProvider()
 
-// Helper function for view calls
+// Helper function for view calls with automatic failover
 export async function view<T = any>(
   contractId: string, 
   method: string, 
@@ -17,22 +15,24 @@ export async function view<T = any>(
 ): Promise<T> {
   const argsBase64 = Buffer.from(JSON.stringify(args)).toString('base64')
   
-  const result = await provider.query({
-    request_type: 'call_function',
-    finality: 'final',
-    account_id: contractId,
-    method_name: method,
-    args_base64: argsBase64,
-  })
+  return rpcManager.makeRequest(async (provider) => {
+    const result = await provider.query({
+      request_type: 'call_function',
+      finality: 'final',
+      account_id: contractId,
+      method_name: method,
+      args_base64: argsBase64,
+    })
 
-  const data = (result as any).result
-  return JSON.parse(Buffer.from(data).toString())
+    const data = (result as any).result
+    return JSON.parse(Buffer.from(data).toString())
+  })
 }
 
 // Network configuration
 export const getNetworkConfig = () => ({
   networkId: NETWORK_ID,
-  nodeUrl: RPC_URL,
+  nodeUrl: rpcManager.getCurrentUrl(),
   walletUrl: NETWORK_ID === 'mainnet' 
     ? 'https://app.mynearwallet.com'
     : 'https://testnet.mynearwallet.com',
@@ -47,4 +47,24 @@ export const initializeNear = async () => {
   if (typeof window === 'undefined') return null
   
   return setupWallet()
+}
+
+// Get account NEAR balance with automatic failover
+export async function getAccountBalance(accountId: string): Promise<string> {
+  try {
+    return await rpcManager.makeRequest(async (provider) => {
+      const account = await provider.query({
+        request_type: 'view_account',
+        finality: 'final',
+        account_id: accountId,
+      })
+
+      const balance = (account as any).amount
+      // Convert yoctoNEAR to NEAR (1 NEAR = 10^24 yoctoNEAR)
+      return balance
+    })
+  } catch (error) {
+    console.error('Error fetching account balance:', error)
+    return '0'
+  }
 }

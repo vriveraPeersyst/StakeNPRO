@@ -1,6 +1,6 @@
 export default function FooterBar() {
   return (
-    <footer className="w-full max-w-content mx-auto px-4 py-8">
+    <footer className="w-full max-w-[760px] mx-auto px-4 py-8">
       <div className="flex items-center justify-between">
         {/* Left - Logo and brand */}
         <div className="flex items-center gap-3">

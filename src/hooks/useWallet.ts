@@ -25,7 +25,74 @@ export function useWallet(): WalletState & {
 
   useEffect(() => {
     initWallet()
+    
+    // Set up a periodic check for wallet state (reduced frequency)
+    const intervalId = setInterval(checkWalletState, 10000) // Check every 10 seconds (reduced from 5)
+    
+    return () => {
+      clearInterval(intervalId)
+    }
   }, [])
+
+  const checkWalletState = async () => {
+    if (!state.selector) return
+    
+    try {
+      const isSignedIn = state.selector.isSignedIn()
+      const accounts = await state.selector.store.getState().accounts
+      const accountId = accounts[0]?.accountId || null
+      
+      // Additional validation: check if wallet is actually accessible
+      if (isSignedIn && accountId) {
+        try {
+          // Try to get wallet instance to verify it's still connected
+          const wallet = await state.selector.wallet()
+          if (!wallet) {
+            throw new Error('Wallet not accessible')
+          }
+        } catch (walletError) {
+          console.warn('Wallet access failed, marking as disconnected:', walletError)
+          setState(prev => ({
+            ...prev,
+            accountId: null,
+            isConnected: false,
+          }))
+          return
+        }
+      }
+      
+      // If we think we're connected but wallet says we're not, update state
+      if (state.isConnected && !isSignedIn) {
+        setState(prev => ({
+          ...prev,
+          accountId: null,
+          isConnected: false,
+        }))
+      } else if (!state.isConnected && isSignedIn && accountId) {
+        setState(prev => ({
+          ...prev,
+          accountId,
+          isConnected: true,
+        }))
+      } else if (state.accountId !== accountId) {
+        setState(prev => ({
+          ...prev,
+          accountId,
+          isConnected: !!accountId,
+        }))
+      }
+    } catch (error) {
+      console.error('Error checking wallet state:', error)
+      // If there's an error, assume disconnected
+      if (state.isConnected) {
+        setState(prev => ({
+          ...prev,
+          accountId: null,
+          isConnected: false,
+        }))
+      }
+    }
+  }
 
   const initWallet = async () => {
     try {
@@ -79,13 +146,23 @@ export function useWallet(): WalletState & {
 
   const signOut = async () => {
     if (!state.selector) return
-    const wallet = await state.selector.wallet()
-    await wallet.signOut()
-    setState(prev => ({
-      ...prev,
-      accountId: null,
-      isConnected: false,
-    }))
+    try {
+      const wallet = await state.selector.wallet()
+      await wallet.signOut()
+      setState(prev => ({
+        ...prev,
+        accountId: null,
+        isConnected: false,
+      }))
+    } catch (error) {
+      console.error('Error signing out:', error)
+      // Force disconnect state even if signOut fails
+      setState(prev => ({
+        ...prev,
+        accountId: null,
+        isConnected: false,
+      }))
+    }
   }
 
   return {

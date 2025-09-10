@@ -26,9 +26,9 @@ export default function HomePage() {
         </header>
 
         {/* Main content area */}
-        <main className="flex-1 flex flex-col items-center justify-center px-4 -mt-8">
+        <main className="flex-1 flex flex-col items-center justify-center mt-24">
           {/* Hero title */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 px-4">
             <h1 className="text-4xl leading-12 font-semibold text-nm-text tracking-tight">
               Stake NEAR.{' '}
               <span className="inline-flex items-center gap-2">
@@ -45,7 +45,7 @@ export default function HomePage() {
           </div>
 
           {/* Main container with StakeCard and AppBanner */}
-          <div className="flex flex-col items-start gap-2 w-full max-w-[760px] mx-auto mb-16">
+          <div className="flex flex-col items-start gap-2 w-full max-w-[760px] mx-auto -mt-8 mb-16 px-4">
             {/* Stake Card */}
             <div className="w-full">
               <StakeCard />

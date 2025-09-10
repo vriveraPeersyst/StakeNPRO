@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 import './globals.css'
+import { RpcStatus } from '@/components/RpcStatus'
 
 export default function RootLayout({
   children,
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body>
         <QueryClientProvider client={queryClient}>
           {children}
+          <RpcStatus />
         </QueryClientProvider>
       </body>
     </html>
