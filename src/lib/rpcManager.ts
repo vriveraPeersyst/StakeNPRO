@@ -87,7 +87,6 @@ class RpcManager {
       'https://near.lava.build',
       'https://near.blockpi.network/v1/rpc/public',
       'https://rpc.shitzuapes.xyz',
-      'https://near-mainnet.api.pagoda.co/rpc/v1'
     ]
     return defaultEndpoints.includes(url)
   }
@@ -101,7 +100,6 @@ class RpcManager {
       'https://near.lava.build',
       'https://near.blockpi.network/v1/rpc/public',
       'https://rpc.shitzuapes.xyz',
-      'https://near-mainnet.api.pagoda.co/rpc/v1'
     ]
     
     // Add primary endpoint
