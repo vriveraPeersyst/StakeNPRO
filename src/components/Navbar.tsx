@@ -59,11 +59,16 @@ export default function Navbar() {
 
         {/* Right - Get the App Button */}
         <div className="flex justify-end items-center w-60 h-10">
-          <button className="flex flex-row justify-center items-center px-4 py-2 gap-2 w-[121px] h-10 bg-primary rounded-full">
+          <a
+            href="https://nearmobile.app/downloadredirect"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-row justify-center items-center px-4 py-2 gap-2 w-[121px] h-10 bg-primary rounded-full hover:opacity-80 transition-opacity"
+          >
             <span className="w-[89px] h-6 font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-white">
               Get the app
             </span>
-          </button>
+          </a>
         </div>
       </div>
     </nav>
