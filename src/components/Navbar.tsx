@@ -25,21 +25,36 @@ export default function Navbar() {
 
         {/* Center - Menu */}
         <div className="flex flex-row justify-center items-center gap-3 w-60 h-6">
-          <span className="w-[45px] h-6 font-sf font-medium text-base leading-6 tracking-[-0.01em] text-nm-muted cursor-pointer hover:text-nm-text transition-colors">
+          <a
+            href="https://nearmobile.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-[45px] h-6 font-sf font-medium text-base leading-6 tracking-[-0.01em] text-nm-muted cursor-pointer hover:text-nm-text transition-colors"
+          >
             Home
-          </span>
+          </a>
           <div className="relative">
             <span className="w-[46px] h-6 font-sf font-medium text-base leading-6 tracking-[-0.01em] text-nm-text cursor-pointer">
               NPRO
             </span>
             <div className="absolute w-[38px] h-1 left-1 -bottom-4 bg-primary"></div>
           </div>
-          <span className="w-[62px] h-6 font-sf font-medium text-base leading-6 tracking-[-0.01em] text-nm-muted cursor-pointer hover:text-nm-text transition-colors">
+          <a
+            href="https://discord.com/invite/y3dsWCJFcM"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-[62px] h-6 font-sf font-medium text-base leading-6 tracking-[-0.01em] text-nm-muted cursor-pointer hover:text-nm-text transition-colors"
+          >
             Support
-          </span>
-          <span className="w-[35px] h-6 font-sf font-medium text-base leading-6 tracking-[-0.01em] text-nm-muted cursor-pointer hover:text-nm-text transition-colors">
+          </a>
+          <a
+            href="https://nearmobile.app/blog"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-[35px] h-6 font-sf font-medium text-base leading-6 tracking-[-0.01em] text-nm-muted cursor-pointer hover:text-nm-text transition-colors"
+          >
             Blog
-          </span>
+          </a>
         </div>
 
         {/* Right - Get the App Button */}

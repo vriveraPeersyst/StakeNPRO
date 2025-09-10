@@ -11,7 +11,12 @@ export default function AppBanner() {
       {/* Store buttons container */}
       <div className="flex flex-row items-center gap-2 w-[291px] h-10">
         {/* App Store Button */}
-        <button className="flex flex-row justify-center items-center py-2 px-4 gap-2 w-[132px] h-10 bg-white bg-opacity-20 rounded-[100px] hover:bg-opacity-25 transition-all">
+        <a
+          href="https://apps.apple.com/app/near-mobile/id6443501225"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-row justify-center items-center py-2 px-4 gap-2 w-[132px] h-10 bg-white bg-opacity-20 rounded-[100px] hover:bg-opacity-25 transition-all"
+        >
           {/* Apple Logo */}
           <img 
             src="/icons/AppleLogo.svg" 
@@ -21,10 +26,15 @@ export default function AppBanner() {
           <span className="font-medium text-sm leading-5 text-center tracking-[-0.01em] text-white w-[72px] h-5 flex-none">
             App Store
           </span>
-        </button>
+        </a>
         
         {/* Google Play Button */}
-        <button className="flex flex-row justify-center items-center py-2 px-4 gap-2 w-[151px] h-10 bg-white bg-opacity-20 rounded-[100px] hover:bg-opacity-25 transition-all">
+        <a
+          href="https://play.google.com/store/apps/details?id=com.peersyst.nearmobilewallet"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-row justify-center items-center py-2 px-4 gap-2 w-[151px] h-10 bg-white bg-opacity-20 rounded-[100px] hover:bg-opacity-25 transition-all"
+        >
           {/* Google Play Logo */}
           <img 
             src="/icons/GooglePlayLogo.svg" 
@@ -34,7 +44,7 @@ export default function AppBanner() {
           <span className="font-medium text-sm leading-5 text-center tracking-[-0.01em] text-white w-[91px] h-5 flex-none">
             Google Play
           </span>
-        </button>
+        </a>
       </div>
     </div>
   )
