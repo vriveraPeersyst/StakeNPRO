@@ -187,8 +187,8 @@ export default function StakeCard() {
         </button>
 
         {stakeTxHash && (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="font-sf text-sm text-green-800">
+          <div className="p-3 bg-teal/10 border border-teal/30 rounded-lg">
+            <p className="font-sf text-sm text-teal">
               Transaction successful!{' '}
               <a
                 href={`${process.env.NEXT_PUBLIC_EXPLORER_BASE}/txns/${stakeTxHash}`}
@@ -450,8 +450,8 @@ export default function StakeCard() {
 
         {/* Transaction status messages - Keep only the essential ones */}
         {unstakeTxHash && (
-          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg w-full">
-            <p className="font-sf text-sm text-orange-800">
+          <div className="p-3 bg-teal/10 border border-teal/30 rounded-lg w-full">
+            <p className="font-sf text-sm text-teal">
               Unstake transaction successful!{' '}
               <a
                 href={`${process.env.NEXT_PUBLIC_EXPLORER_BASE}/txns/${unstakeTxHash}`}
@@ -466,8 +466,8 @@ export default function StakeCard() {
         )}
 
         {withdrawTxHash && (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg w-full">
-            <p className="font-sf text-sm text-green-800">
+          <div className="p-3 bg-teal/10 border border-teal/30 rounded-lg w-full">
+            <p className="font-sf text-sm text-teal">
               Withdraw transaction successful!{' '}
               <a
                 href={`${process.env.NEXT_PUBLIC_EXPLORER_BASE}/txns/${withdrawTxHash}`}
