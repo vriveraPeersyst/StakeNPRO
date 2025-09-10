@@ -3,6 +3,7 @@ import './globals.css'
 import { Providers } from '@/components/Providers'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'),
   title: 'NPRO Stake - Stake NEAR. Earn NPRO now.',
   description: 'Stake NEAR tokens to the NPRO validator and earn NPRO rewards',
   icons: {

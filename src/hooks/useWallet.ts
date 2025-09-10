@@ -45,7 +45,8 @@ export function useWallet(): WalletState & {
     return () => {
       clearInterval(intervalId)
     }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Empty dependency array is intentional - we only want this to run once
 
   const checkWalletState = async () => {
     if (!state.selector) return
