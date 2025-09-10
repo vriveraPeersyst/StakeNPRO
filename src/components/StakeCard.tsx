@@ -64,7 +64,9 @@ export default function StakeCard() {
 
   const handleUnstake = () => {
     if (!staked || staked === '0') return
-    unstake(staked) // Unstake all
+    // Convert yoctoNEAR to NEAR format for the unstake function
+    const stakedInNear = formatNearAmount(staked)
+    unstake(stakedInNear) // Unstake all
   }
 
   const handleWithdraw = () => {
@@ -192,36 +194,98 @@ export default function StakeCard() {
           
           {/* Token List */}
           <div className="flex flex-col items-start gap-5 w-full">
-            {/* NEAR Token Row */}
-            <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
-              {/* NEAR Icon */}
-              <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
-                <img 
-                  src="/icons/neartoken.svg" 
-                  alt="NEAR Token" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              {/* Token Info */}
-              <div className="flex flex-col justify-center items-start flex-1">
-                <div className="w-full font-sf font-semibold text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
-                  {formatNearAmount(total)} NEAR
+            {/* Staked NEAR Token Row - Only show if there's staked balance */}
+            {staked && staked !== '0' && (
+              <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
+                {/* NEAR Icon */}
+                <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
+                  <img 
+                    src="/icons/neartoken.svg" 
+                    alt="NEAR Token" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <div className="w-full font-sf font-semibold text-xs leading-4 tracking-[-0.01em] text-[#999999]">
-                  {priceData && `$${((parseFloat(formatNearAmount(total)) || 0) * priceData.usd).toFixed(2)}`}
+                
+                {/* Token Info */}
+                <div className="flex flex-col justify-center items-start flex-1">
+                  <div className="w-full font-sf font-semibold text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
+                    {formatNearAmount(staked)} NEAR (Staked)
+                  </div>
+                  <div className="w-full font-sf font-semibold text-xs leading-4 tracking-[-0.01em] text-[#999999]">
+                    {priceData && `$${((parseFloat(formatNearAmount(staked)) || 0) * priceData.usd).toFixed(2)}`}
+                  </div>
+                </div>
+                
+                {/* Unstake Button */}
+                <button
+                  onClick={handleUnstake}
+                  disabled={unstakeLoading}
+                  className="flex flex-row justify-center items-center px-4 py-2 gap-2 w-[95px] h-10 bg-[#F6F6F6] rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-[#3F4246] hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-none"
+                >
+                  {unstakeLoading ? 'Unstaking...' : 'Unstake'}
+                </button>
+              </div>
+            )}
+
+            {/* Unstaked NEAR Token Row - Only show if there's unstaked balance */}
+            {unstaked && unstaked !== '0' && (
+              <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
+                {/* NEAR Icon */}
+                <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
+                  <img 
+                    src="/icons/neartoken.svg" 
+                    alt="NEAR Token" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                {/* Token Info */}
+                <div className="flex flex-col justify-center items-start flex-1">
+                  <div className="w-full font-sf font-semibold text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
+                    {formatNearAmount(unstaked)} NEAR (Unstaking)
+                  </div>
+                  <div className="w-full font-sf font-semibold text-xs leading-4 tracking-[-0.01em] text-[#999999]">
+                    {canWithdraw ? 'Ready to withdraw' : 'Pending (~30-37 hours)'}
+                  </div>
+                </div>
+                
+                {/* Withdraw Button - Only show if ready */}
+                {canWithdraw ? (
+                  <button
+                    onClick={handleWithdraw}
+                    disabled={withdrawLoading}
+                    className="flex flex-row justify-center items-center px-4 py-2 gap-2 w-[95px] h-10 bg-[#5F8AFA] rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-white hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-none"
+                  >
+                    {withdrawLoading ? 'Withdrawing...' : 'Withdraw'}
+                  </button>
+                ) : (
+                  <div className="w-[95px] h-10 flex items-center justify-center">
+                    <span className="font-sf font-normal text-xs text-[#999999]">Waiting</span>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Show message if no staked or unstaked balance */}
+            {(!staked || staked === '0') && (!unstaked || unstaked === '0') && (
+              <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
+                <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
+                  <img 
+                    src="/icons/neartoken.svg" 
+                    alt="NEAR Token" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex flex-col justify-center items-start flex-1">
+                  <div className="w-full font-sf font-semibold text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
+                    0 NEAR
+                  </div>
+                  <div className="w-full font-sf font-semibold text-xs leading-4 tracking-[-0.01em] text-[#999999]">
+                    No staked balance yet
+                  </div>
                 </div>
               </div>
-              
-              {/* Unstake Button */}
-              <button
-                onClick={handleUnstake}
-                disabled={unstakeLoading || !staked || staked === '0'}
-                className="flex flex-row justify-center items-center px-4 py-2 gap-2 w-[95px] h-10 bg-[#F6F6F6] rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-[#3F4246] hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-none"
-              >
-                {unstakeLoading ? 'Unstaking...' : 'Unstake'}
-              </button>
-            </div>
+            )}
             
             {/* NPRO Token Row */}
             <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
@@ -267,31 +331,7 @@ export default function StakeCard() {
           </div>
         </div>
 
-        {/* Transaction Status Messages */}
-        {unstaked && unstaked !== '0' && (
-          <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg w-full">
-            <p className="font-sf text-sm text-orange-800 mb-2">
-              <strong>Unstaking takes ~30–37 hours</strong> (4 epochs; ~43,200 blocks per epoch ≈ 7 hours). 
-              When ready, Withdraw will activate.
-            </p>
-            <p className="font-sf text-sm text-orange-700">
-              Unstaked amount: {formatNearAmount(unstaked)} NEAR
-            </p>
-          </div>
-        )}
-
-        {/* Withdraw button */}
-        {canWithdraw && unstaked && unstaked !== '0' && (
-          <button
-            onClick={handleWithdraw}
-            disabled={withdrawLoading}
-            className="w-full h-13 bg-primary text-white rounded-pill font-sf font-semibold text-base hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {withdrawLoading ? 'Withdrawing...' : `Withdraw ${formatNearAmount(unstaked)} NEAR`}
-          </button>
-        )}
-
-        {/* Transaction status */}
+        {/* Transaction status messages - Keep only the essential ones */}
         {unstakeTxHash && (
           <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg w-full">
             <p className="font-sf text-sm text-orange-800">
@@ -328,44 +368,43 @@ export default function StakeCard() {
   }
 
   const renderWhyTab = () => (
-    <div className="space-y-6">
-      <div className="prose max-w-none">
-        <h3 className="font-sf text-xl font-semibold text-nm-text mb-4">Why stake to earn NPRO?</h3>
+    <div className="w-full bg-white">
+      {/* Content aligned with header padding */}
+      <div className="flex flex-col items-start px-0 py-1 gap-4 w-full">
+        {/* Main Title */}
+        <h3 className="font-sf font-medium text-2xl leading-8 tracking-[-0.01em] text-[#3F4246]">
+          Gain an advantage by being among the first to get NPRO
+        </h3>
         
-        <div className="space-y-4 text-nm-text">
-          <p className="font-sf">
-            NPRO is the native token of the NEAR Mobile ecosystem. By staking your NEAR tokens 
-            to the NPRO validator, you're not only securing the NEAR network but also earning 
-            NPRO rewards.
-          </p>
+        {/* Cards Container */}
+        <div className="flex flex-col items-start gap-5 w-full">
+          {/* Chart and Description Row */}
+          <div className="flex flex-row items-start gap-5 w-full">
+            {/* Chart Image */}
+            <div className="w-[357px] h-[247px] flex-none">
+              <img 
+                src="/icons/BondingCurve.svg" 
+                alt="Bonding Curve Chart" 
+                className="w-full h-full object-cover"
+                style={{ filter: 'drop-shadow(0px 4px 16px rgba(63, 66, 70, 0.03))' }}
+              />
+            </div>
+            
+            {/* Description Text */}
+            <div className="flex-1">
+              <p className="font-sf font-normal text-base leading-6 tracking-[-0.01em] text-[#999999]">
+                NPRO is the NEAR Mobile token. It's value is backed through NEAR staking and will be tradable as any other popular cryptocurrencies on the app and exchanges. It will unlock superpowers on the NEAR app reducing fees and providing a complete toolking for trading crypto.
+              </p>
+            </div>
+          </div>
           
-          <h4 className="font-sf text-lg font-semibold">Benefits of staking to NPRO:</h4>
-          <ul className="list-disc list-inside space-y-2 text-nm-muted">
-            <li className="font-sf">Earn both NEAR staking rewards and NPRO tokens</li>
-            <li className="font-sf">Support the decentralization of the NEAR network</li>
-            <li className="font-sf">Get early access to NEAR Mobile features</li>
-            <li className="font-sf">Participate in the NPRO governance ecosystem</li>
-          </ul>
-
-          <div className="mt-6 p-4 bg-gradient-to-r from-primary/10 to-teal/10 rounded-2xl">
-            <h4 className="font-sf font-semibold mb-2">NPRO Token Utility</h4>
-            <p className="font-sf text-sm text-nm-muted">
-              NPRO tokens will provide access to premium features in the NEAR Mobile app, 
-              governance voting rights, and exclusive rewards. The token economics are designed 
-              to create long-term value for the NEAR ecosystem.
+          {/* Long Description Text */}
+          <div className="w-full">
+            <p className="font-sf font-normal text-base leading-6 tracking-[-0.01em] text-[#999999]">
+              The amount of NPRO tokens released decreases every epoch following a bonding curve, rewarding early adopters with a decay parameter to only 25% on the last epoch to maintain the rewards interesting throughout the 5-year period. This creates natural scarcity as the token becomes progressively harder to obtain. This scarcity mechanism enhances long-term value proposition for NPRO holders, combined with required holdings to unlock premium features and the automatic liquidity mechanism, generating upward pressure to position NPRO as a strong investment opportunity.
             </p>
           </div>
         </div>
-      </div>
-
-      {/* Placeholder bonding curve chart */}
-      <div className="mt-8 p-8 bg-nm-chip rounded-2xl text-center">
-        <div className="w-full h-48 bg-gradient-to-br from-primary/20 to-teal/20 rounded-xl flex items-center justify-center">
-          <p className="font-sf text-nm-muted">Bonding Curve Chart</p>
-        </div>
-        <p className="font-sf text-sm text-nm-muted mt-4">
-          NPRO distribution follows a bonding curve that rewards early and long-term stakers
-        </p>
       </div>
     </div>
   )
