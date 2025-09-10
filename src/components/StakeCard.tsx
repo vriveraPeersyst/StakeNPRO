@@ -19,6 +19,9 @@ export default function StakeCard() {
   const [activeTab, setActiveTab] = useState<Tab>('stake')
   const [stakeAmount, setStakeAmount] = useState('')
   const [selectedPercentage, setSelectedPercentage] = useState<string | null>(null)
+  const [showUnstakeModal, setShowUnstakeModal] = useState(false)
+  const [unstakeAmount, setUnstakeAmount] = useState('')
+  const [unstakeSelectedPercentage, setUnstakeSelectedPercentage] = useState<string | null>(null)
   
   const { isConnected, accountId, signIn, signOut } = useWallet()
   const { staked, unstaked, total, canWithdraw, isLoading: balancesLoading } = useBalances()
@@ -64,9 +67,45 @@ export default function StakeCard() {
 
   const handleUnstake = () => {
     if (!staked || staked === '0') return
+    setShowUnstakeModal(true)
+  }
+
+  const handleUnstakeAmount = () => {
+    if (!unstakeAmount || parseFloat(unstakeAmount) <= 0) return
+    unstake(unstakeAmount)
+    setShowUnstakeModal(false)
+    setUnstakeAmount('')
+    setUnstakeSelectedPercentage(null)
+  }
+
+  const handleUnstakeAll = () => {
+    if (!staked || staked === '0') return
     // Convert yoctoNEAR to NEAR format for the unstake function
     const stakedInNear = formatNearAmount(staked)
     unstake(stakedInNear) // Unstake all
+    setShowUnstakeModal(false)
+  }
+
+  const handleUnstakeAmountChange = (value: string) => {
+    setUnstakeAmount(value)
+    if (unstakeSelectedPercentage) {
+      setUnstakeSelectedPercentage(null)
+    }
+  }
+
+  const handleUnstakePercentageClick = (percentage: string, value: number) => {
+    if (!staked || staked === '0') return
+    const stakedInNear = parseFloat(formatNearAmount(staked))
+    const amount = (stakedInNear * value).toFixed(6)
+    setUnstakeAmount(amount)
+    setUnstakeSelectedPercentage(percentage)
+  }
+
+  const handleUnstakeMaxClick = () => {
+    if (!staked || staked === '0') return
+    const stakedInNear = formatNearAmount(staked)
+    setUnstakeAmount(stakedInNear)
+    setUnstakeSelectedPercentage('Max')
   }
 
   const handleWithdraw = () => {
@@ -127,6 +166,16 @@ export default function StakeCard() {
             availableBalance={balance}
             isBalanceLoading={walletBalanceLoading}
           />
+          
+          {/* Gas Fee Warning */}
+          <div className="mt-2 flex items-start gap-2">
+            <svg className="w-4 h-4 text-[#999999] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="font-sf text-xs text-[#999999] leading-4">
+              0.1 NEAR is reserved for unstaking and storage fees
+            </p>
+          </div>
         </div>
 
         <button
@@ -196,34 +245,102 @@ export default function StakeCard() {
           <div className="flex flex-col items-start gap-5 w-full">
             {/* Staked NEAR Token Row - Only show if there's staked balance */}
             {staked && staked !== '0' && (
-              <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
-                {/* NEAR Icon */}
-                <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
-                  <img 
-                    src="/icons/neartoken.svg" 
-                    alt="NEAR Token" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                {/* Token Info */}
-                <div className="flex flex-col justify-center items-start flex-1">
-                  <div className="w-full font-sf font-semibold text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
-                    {formatNearAmount(staked)} NEAR (Staked)
+              <div className="flex flex-col items-start gap-4 w-full">
+                <div className="flex flex-row justify-center items-center gap-6 w-full h-11 bg-white">
+                  {/* NEAR Icon */}
+                  <div className="w-11 h-11 rounded-full overflow-hidden flex-none">
+                    <img 
+                      src="/icons/neartoken.svg" 
+                      alt="NEAR Token" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div className="w-full font-sf font-semibold text-xs leading-4 tracking-[-0.01em] text-[#999999]">
-                    {priceData && `$${((parseFloat(formatNearAmount(staked)) || 0) * priceData.usd).toFixed(2)}`}
+                  
+                  {/* Token Info */}
+                  <div className="flex flex-col justify-center items-start flex-1">
+                    <div className="w-full font-sf font-semibold text-sm leading-5 tracking-[-0.01em] text-[#3F4246]">
+                      {formatNearAmount(staked)} NEAR (Staked)
+                    </div>
+                    <div className="w-full font-sf font-semibold text-xs leading-4 tracking-[-0.01em] text-[#999999]">
+                      {priceData && `$${((parseFloat(formatNearAmount(staked)) || 0) * priceData.usd).toFixed(2)}`}
+                    </div>
                   </div>
+                  
+                  {/* Unstake Button */}
+                  <button
+                    onClick={handleUnstake}
+                    disabled={unstakeLoading}
+                    className="flex flex-row justify-center items-center px-4 py-2 gap-2 w-[95px] h-10 bg-[#F6F6F6] rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-[#3F4246] hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-none"
+                  >
+                    {unstakeLoading ? 'Unstaking...' : 'Unstake'}
+                  </button>
                 </div>
-                
-                {/* Unstake Button */}
-                <button
-                  onClick={handleUnstake}
-                  disabled={unstakeLoading}
-                  className="flex flex-row justify-center items-center px-4 py-2 gap-2 w-[95px] h-10 bg-[#F6F6F6] rounded-[100px] font-sf font-medium text-base leading-6 text-center tracking-[-0.01em] text-[#3F4246] hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-none"
-                >
-                  {unstakeLoading ? 'Unstaking...' : 'Unstake'}
-                </button>
+
+                {/* Unstake Form - Show when modal is open */}
+                {showUnstakeModal && (
+                  <div className="w-full bg-[#F8F9FA] rounded-xl p-4 border border-[#E5E5E5]">
+                    {/* Form Header */}
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-sf font-semibold text-base leading-6 text-[#3F4246]">
+                        Choose amount to unstake
+                      </h4>
+                      <button
+                        onClick={() => {
+                          setShowUnstakeModal(false)
+                          setUnstakeAmount('')
+                          setUnstakeSelectedPercentage(null)
+                        }}
+                        className="w-5 h-5 flex items-center justify-center text-[#999999] hover:text-[#3F4246] font-sf text-sm"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* Amount Input */}
+                    <div className="mb-4">
+                      <AmountInput
+                        value={unstakeAmount}
+                        onChange={handleUnstakeAmountChange}
+                        onMaxClick={handleUnstakeMaxClick}
+                        onPercentageClick={handleUnstakePercentageClick}
+                        disabled={unstakeLoading}
+                        nearPrice={priceData?.usd}
+                        isConnected={true}
+                        selectedPercentage={unstakeSelectedPercentage}
+                        availableBalance={formatNearAmount(staked)}
+                        isBalanceLoading={balancesLoading}
+                      />
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-row gap-3">
+                      {/* Unstake Specific Amount */}
+                      <button
+                        onClick={handleUnstakeAmount}
+                        disabled={!unstakeAmount || parseFloat(unstakeAmount) <= 0 || unstakeLoading}
+                        className="flex-1 flex flex-row justify-center items-center py-2.5 px-4 gap-2 h-10 bg-[#5F8AFA] rounded-[100px] font-sf font-medium text-sm leading-5 text-center tracking-[-0.01em] text-white hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {unstakeLoading ? 'Unstaking...' : 'Unstake'}
+                      </button>
+
+                      {/* Unstake All */}
+                      <button
+                        onClick={handleUnstakeAll}
+                        disabled={unstakeLoading}
+                        className="flex-1 flex flex-row justify-center items-center py-2.5 px-4 gap-2 h-10 bg-[#F6F6F6] rounded-[100px] font-sf font-medium text-sm leading-5 text-center tracking-[-0.01em] text-[#3F4246] hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {unstakeLoading ? 'Unstaking...' : 'Unstake All'}
+                      </button>
+                    </div>
+
+                    {/* Info Message */}
+                    <div className="mt-3 p-2.5 bg-orange-50 border border-orange-200 rounded-lg">
+                      <p className="font-sf text-xs text-orange-800">
+                        <strong>Note:</strong> Unstaking takes ~30–37 hours (4 epochs).
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
