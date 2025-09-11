@@ -10,23 +10,26 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest",
-    "preview": "next start -p 4000"
+    "preview": "next start -p 4000",
+    "security:audit": "pnpm audit --prod --audit-level=high",
+    "security:audit-all": "pnpm audit",
+    "security:check": "pnpm typecheck && pnpm lint && pnpm security:audit"
   },
   "dependencies": {
-    "@near-wallet-selector/core": "^8.9.13",
-    "@near-wallet-selector/here-wallet": "^8.9.13",
-    "@near-wallet-selector/hot-wallet": "^8.9.13",
+    "@near-wallet-selector/core": "^9.5.1",
+    "@near-wallet-selector/here-wallet": "^9.5.1",
+    "@near-wallet-selector/hot-wallet": "^9.5.1",
     "@near-wallet-selector/ledger": "npm:@peersyst/ws-ledger@^8.9.18",
-    "@near-wallet-selector/meteor-wallet": "^8.9.13",
-    "@near-wallet-selector/modal-ui": "^8.9.13",
+    "@near-wallet-selector/meteor-wallet": "^9.5.1",
+    "@near-wallet-selector/modal-ui": "^9.5.1",
     "@near-wallet-selector/modal-ui-js": "^9.5.1",
-    "@near-wallet-selector/my-near-wallet": "^8.9.13",
+    "@near-wallet-selector/my-near-wallet": "^9.5.1",
     "@near-wallet-selector/near-mobile-wallet": "^9.5.1",
     "@tanstack/react-query": "^5.28.9",
     "clsx": "^2.1.0",
     "lucide-react": "^0.366.0",
-    "near-api-js": "^4.0.3",
-    "next": "14.1.4",
+    "near-api-js": "^5.0.0",
+    "next": "15.5.3",
     "react": "^18",
     "react-dom": "^18",
     "tailwind-merge": "^2.2.2"
@@ -37,19 +40,26 @@
     "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react": "^5.0.2",
     "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.1.4",
+    "eslint": "^9.35.0",
+    "eslint-config-next": "15.5.3",
     "jsdom": "^24.0.0",
     "postcss": "^8",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.3.0",
     "typescript": "^5",
-    "vitest": "^1.4.0"
+    "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@8.15.6"
+  "packageManager": "pnpm@8.15.6",
+  "pnpm": {
+    "overrides": {
+      "secp256k1": "^5.0.1",
+      "bs58": "4.0.1",
+      "base-x": "3.0.11"
+    }
+  }
 }
