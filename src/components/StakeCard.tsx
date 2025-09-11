@@ -533,12 +533,14 @@ export default function StakeCard() {
           <div className="flex items-center justify-between px-0 pr-3 sm:pr-6 h-full">
             {/* Tabs Container - Scrollable on mobile */}
             <div className="flex-1 overflow-x-auto scrollbar-hide">
-              <div className="flex items-center px-3 sm:px-6 gap-3 sm:gap-6 h-16 sm:h-20 min-w-max">
+              <div className="flex items-center px-3 sm:px-6 gap-1 sm:gap-6 h-16 sm:h-20 min-w-max">
                 {tabs.map((tab, index) => {
                   // Responsive widths for tabs
                   const getTabWidth = (index: number) => {
                     if (index === 0) return 'w-auto min-w-[60px] sm:w-[42px]'
                     if (index === 1) return 'w-auto min-w-[100px] sm:w-[88px]'
+                    // For "Why" tab, use smaller width on mobile when connected, full width otherwise
+                    if (index === 2 && isConnected) return 'w-auto min-w-[90px] sm:w-[182px]'
                     return 'w-auto min-w-[160px] sm:w-[182px]'
                   }
                   
@@ -558,7 +560,16 @@ export default function StakeCard() {
                         textAlign: 'center'
                       }}
                     >
-                      <span className="sm:text-base sm:leading-6">{tab.label}</span>
+                      <span className="sm:text-base sm:leading-6">
+                        {tab.id === 'why' && isConnected ? (
+                          <>
+                            <span className="sm:hidden">Why Stake?</span>
+                            <span className="hidden sm:inline">{tab.label}</span>
+                          </>
+                        ) : (
+                          tab.label
+                        )}
+                      </span>
                     </button>
                   )
                 })}
