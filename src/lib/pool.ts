@@ -2,7 +2,7 @@ import { WalletSelector } from '@near-wallet-selector/core'
 import { view } from './near'
 import { utils } from 'near-api-js'
 
-const POOL_ID = process.env.NEXT_PUBLIC_POOL_ID || 'zavodil.poolv1.near'
+const POOL_ID = process.env.NEXT_PUBLIC_POOL_ID || 'npro.poolv1.near'
 const GAS = '30000000000000' // 30 Tgas
 
 // Pool view methods

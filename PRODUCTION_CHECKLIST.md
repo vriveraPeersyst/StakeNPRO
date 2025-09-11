@@ -29,7 +29,7 @@ Copy these to your Vercel project dashboard:
 
 ```bash
 NEXT_PUBLIC_NETWORK_ID=mainnet
-NEXT_PUBLIC_POOL_ID=zavodil.poolv1.near
+NEXT_PUBLIC_POOL_ID=npro.poolv1.near
 NEXT_PUBLIC_RPC_URL=https://rpc.mainnet.near.org
 NEXT_PUBLIC_RPC_FALLBACKS=https://near.lava.build,https://near.blockpi.network/v1/rpc/public,https://rpc.shitzuapes.xyz
 NEXT_PUBLIC_EXPLORER_BASE=https://nearblocks.io

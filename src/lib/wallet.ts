@@ -8,7 +8,7 @@ import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet'
 import { setupNearMobileWallet } from '@near-wallet-selector/near-mobile-wallet'
 
 const NETWORK_ID = process.env.NEXT_PUBLIC_NETWORK_ID || 'mainnet'
-const CONTRACT_ID = process.env.NEXT_PUBLIC_POOL_ID || 'zavodil.poolv1.near'
+const CONTRACT_ID = process.env.NEXT_PUBLIC_POOL_ID || 'npro.poolv1.near'
 
 let selector: WalletSelector | null = null
 let modal: any = null

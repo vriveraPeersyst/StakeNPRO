@@ -8,7 +8,7 @@ Copy the following environment variables to your Vercel project dashboard under 
 ```bash
 # Required - NEAR Network Configuration
 NEXT_PUBLIC_NETWORK_ID=mainnet
-NEXT_PUBLIC_POOL_ID=zavodil.poolv1.near
+NEXT_PUBLIC_POOL_ID=npro.poolv1.near
 
 # Primary RPC endpoint - use reliable mainnet RPC
 NEXT_PUBLIC_RPC_URL=https://rpc.mainnet.near.org
@@ -112,7 +112,7 @@ For future updates:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `NEXT_PUBLIC_NETWORK_ID` | NEAR network (mainnet/testnet) | `mainnet` |
-| `NEXT_PUBLIC_POOL_ID` | Validator pool contract | `zavodil.poolv1.near` |
+| `NEXT_PUBLIC_POOL_ID` | Validator pool contract | `npro.poolv1.near` |
 | `NEXT_PUBLIC_RPC_URL` | Primary RPC endpoint | `https://rpc.mainnet.near.org` |
 | `NEXT_PUBLIC_RPC_FALLBACKS` | Backup RPC endpoints | `https://near.lava.build,...` |
 | `NEXT_PUBLIC_EXPLORER_BASE` | Block explorer URL | `https://nearblocks.io` |

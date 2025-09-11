@@ -55,17 +55,11 @@ export function RpcStatus({ isMobile = false }: RpcStatusProps) {
 
   if (!status) return null
 
-  // Only show if there are failures or in development
-  const shouldShow = process.env.NODE_ENV === 'development' || 
-    status.endpoints.some((ep: any) => ep.failures > 0 || ep.isBlacklisted)
-
-  if (!shouldShow && !showDetails) return null
-
   const hasBlacklisted = status.endpoints.some((ep: any) => ep.isBlacklisted)
   const hasFailures = status.endpoints.some((ep: any) => ep.failures > 0)
   const availableCount = status.endpoints.filter((ep: any) => !ep.isBlacklisted).length
 
-  // Mobile version - embedded in navbar
+  // Mobile version - embedded in navbar (always show)
   if (isMobile) {
     return (
       <div className="w-full">
@@ -282,6 +276,12 @@ export function RpcStatus({ isMobile = false }: RpcStatusProps) {
       </div>
     )
   }
+
+  // Desktop version - only show if there are failures or in development
+  const shouldShow = process.env.NODE_ENV === 'development' || 
+    status.endpoints.some((ep: any) => ep.failures > 0 || ep.isBlacklisted)
+
+  if (!shouldShow && !showDetails) return null
 
   // Desktop version - floating
   return (

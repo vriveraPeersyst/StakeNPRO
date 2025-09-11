@@ -34,7 +34,7 @@ StakeNPRO is a modern, secure, and user-friendly staking platform built on the N
 ## Staking Information
 
 ### Validator Pool
-- **Pool ID**: `zavodil.poolv1.near`
+- **Pool ID**: `npro.poolv1.near`
 - **Network**: NEAR Mainnet
 - **Rewards**: NEAR staking rewards + NPRO tokens
 
@@ -53,7 +53,7 @@ Create a `.env.local` file with the following variables:
 ```bash
 # Required
 NEXT_PUBLIC_NETWORK_ID=mainnet
-NEXT_PUBLIC_POOL_ID=zavodil.poolv1.near
+NEXT_PUBLIC_POOL_ID=npro.poolv1.near
 NEXT_PUBLIC_RPC_URL=https://rpc.mainnet.near.org
 NEXT_PUBLIC_EXPLORER_BASE=https://nearblocks.io
 
