@@ -10,7 +10,7 @@ export default function Navbar() {
     <nav className="w-full max-w-[760px] mx-auto px-4">
       <div className="flex flex-row items-center justify-between p-2 gap-3 w-full min-h-14 bg-white shadow-[0px_4px_16px_rgba(48,50,54,0.12)] rounded-xl">
         {/* Left - Logo and Text */}
-        <div className="flex flex-row items-center gap-2 sm:gap-3 flex-shrink-0">
+        <div className="flex flex-row items-center gap-4 sm:gap-3 flex-shrink-0">
           <div className="flex flex-col justify-center items-center w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-[#9797FF] to-[#17D9D4] rounded-[8px] sm:rounded-[10px]">
             <svg width="24" height="24" className="sm:w-7 sm:h-7" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="40" height="40" rx="10" fill="url(#paint0_linear_1_255)"/>

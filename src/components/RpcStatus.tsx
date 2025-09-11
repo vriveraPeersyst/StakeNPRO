@@ -83,32 +83,32 @@ export function RpcStatus({ isMobile = false }: RpcStatusProps) {
         </button>
         
         {showDetails && (
-          <div className="mt-1 w-full bg-gray-50 rounded border border-gray-200 overflow-hidden">
+          <div className="mt-2 w-full bg-white/95 backdrop-blur-xl shadow-nm rounded-nm border border-nm-border overflow-hidden">
             {/* Header */}
-            <div className="px-2 py-1 bg-gray-100 border-b border-gray-200">
+            <div className="px-3 py-2 bg-nm-header border-b border-nm-border">
               <div className="flex justify-between items-center">
-                <h4 className="font-sf font-medium text-xs text-nm-text">
+                <h4 className="font-sf font-semibold text-sm text-nm-text">
                   RPC Status
                 </h4>
                 <button
                   onClick={() => setShowAddRpc(!showAddRpc)}
-                  className="flex items-center gap-0.5 px-1 py-0.5 bg-primary text-white rounded text-xs hover:bg-primary/80 transition-all font-sf font-medium"
+                  className="flex items-center gap-1 px-2 py-1 bg-primary text-white rounded-nm-sm text-xs hover:bg-primary/80 transition-all font-sf font-medium shadow-nm-button"
                 >
-                  <svg width="6" height="6" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 1V11M1 6H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <svg width="8" height="8" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 1V11M1 6H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   Add
                 </button>
               </div>
             </div>
 
-            <div className="px-2 py-1 max-h-24 overflow-y-auto">
+            <div className="px-3 py-3">
               {/* Current RPC Display */}
-              <div className="mb-1">
-                <div className="text-xs font-sf font-medium text-nm-textSecondary mb-0.5">
+              <div className="mb-3">
+                <div className="text-xs font-sf font-medium text-nm-textSecondary mb-1">
                   Current
                 </div>
-                <div className="px-1 py-0.5 bg-white rounded text-xs border border-gray-200">
+                <div className="px-3 py-2 bg-nm-accent rounded-nm-sm text-xs border border-nm-border shadow-sm">
                   <span className="font-sf-mono text-xs text-nm-text">
                     {currentUrl.split('//')[1]?.split('/')[0] || 'unknown'}
                   </span>
@@ -117,8 +117,8 @@ export function RpcStatus({ isMobile = false }: RpcStatusProps) {
 
               {/* Add Custom RPC Form */}
               {showAddRpc && (
-                <div className="mb-1 p-1 bg-white rounded border border-gray-200">
-                  <h5 className="font-sf font-medium text-xs text-nm-text mb-1">
+                <div className="mb-3 p-3 bg-nm-accent rounded-nm border border-nm-border shadow-sm">
+                  <h5 className="font-sf font-semibold text-xs text-nm-text mb-2">
                     Add Custom RPC
                   </h5>
                   <input
@@ -126,24 +126,24 @@ export function RpcStatus({ isMobile = false }: RpcStatusProps) {
                     value={newRpcUrl}
                     onChange={(e) => setNewRpcUrl(e.target.value)}
                     placeholder="https://your-rpc-endpoint.com"
-                    className="w-full px-1 py-0.5 border border-gray-300 rounded text-xs font-sf text-nm-text placeholder-nm-muted bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary mb-1"
+                    className="w-full px-3 py-2 border border-nm-border rounded-nm-sm text-xs font-sf text-nm-text placeholder-nm-muted bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 mb-2 shadow-sm"
                   />
-                  <div className="flex items-center mb-1">
+                  <div className="flex items-center mb-2">
                     <input
                       type="checkbox"
                       id="makeItPrimary-mobile"
                       checked={makeItPrimary}
                       onChange={(e) => setMakeItPrimary(e.target.checked)}
-                      className="mr-1 w-2.5 h-2.5 text-primary bg-white border-gray-300 rounded focus:ring-primary"
+                      className="mr-2 w-3 h-3 text-primary bg-white border-nm-border rounded focus:ring-primary focus:ring-2"
                     />
                     <label htmlFor="makeItPrimary-mobile" className="text-xs font-sf font-medium text-nm-textSecondary">
                       Make primary
                     </label>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     <button
                       onClick={handleAddCustomRpc}
-                      className="px-1.5 py-0.5 bg-nm-success text-white rounded text-xs hover:bg-nm-success/80 transition-all font-sf font-medium"
+                      className="px-3 py-1.5 bg-nm-success text-white rounded-nm-sm text-xs hover:bg-nm-success/80 transition-all font-sf font-medium shadow-nm-button"
                     >
                       Add
                     </button>
@@ -153,7 +153,7 @@ export function RpcStatus({ isMobile = false }: RpcStatusProps) {
                         setNewRpcUrl('')
                         setMakeItPrimary(false)
                       }}
-                      className="px-1.5 py-0.5 bg-nm-muted text-white rounded text-xs hover:bg-nm-muted/80 transition-all font-sf font-medium"
+                      className="px-3 py-1.5 bg-nm-muted text-white rounded-nm-sm text-xs hover:bg-nm-muted/80 transition-all font-sf font-medium"
                     >
                       Cancel
                     </button>
@@ -162,40 +162,40 @@ export function RpcStatus({ isMobile = false }: RpcStatusProps) {
               )}
               
               {/* Instructions */}
-              <div className="mb-1">
+              <div className="mb-2">
                 <p className="text-xs font-sf font-medium text-nm-muted">
                   Tap to switch endpoint
                 </p>
               </div>
               
               {/* RPC Endpoints List */}
-              <div className="space-y-0.5">
+              <div className="space-y-2">
                 {status.endpoints.map((ep: any, i: number) => {
                   const isCurrentRpc = currentUrl === ep.url
                   return (
                     <div
                       key={i}
-                      className={`flex justify-between items-center p-1 rounded border transition-all duration-200 ${
+                      className={`flex justify-between items-center p-2.5 rounded-nm-sm border transition-all duration-200 shadow-sm ${
                         isCurrentRpc 
-                          ? 'bg-primary/10 border-primary/40' 
+                          ? 'bg-primary/10 border-primary/40 shadow-nm' 
                           : ep.isBlacklisted 
                             ? 'bg-nm-error/10 border-nm-error/30 text-nm-error' 
                             : ep.failures > 0 
                               ? 'bg-nm-warning/10 border-nm-warning/30' 
-                              : 'bg-white border-gray-200 hover:border-primary/40'
+                              : 'bg-white border-nm-border hover:border-primary/40 hover:shadow-nm'
                       }`}
                     >
                       <button
                         onClick={() => !ep.isBlacklisted && handleRpcSwitch(ep.url)}
                         disabled={ep.isBlacklisted}
-                        className={`flex items-center gap-1 flex-1 text-left ${
-                          ep.isBlacklisted ? 'cursor-not-allowed' : 'cursor-pointer'
+                        className={`flex items-center gap-2 flex-1 text-left min-w-0 ${
+                          ep.isBlacklisted ? 'cursor-not-allowed' : 'cursor-pointer group'
                         }`}
                       >
                         {/* Status Indicator */}
-                        <div className={`w-1 h-1 rounded-full ${
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                           isCurrentRpc 
-                            ? 'bg-primary' 
+                            ? 'bg-primary shadow-sm shadow-primary/30' 
                             : ep.isBlacklisted 
                               ? 'bg-nm-error' 
                               : ep.failures > 0 
@@ -208,27 +208,27 @@ export function RpcStatus({ isMobile = false }: RpcStatusProps) {
                           ep.isBlacklisted 
                             ? 'text-nm-error' 
                             : isCurrentRpc 
-                              ? 'text-primary font-medium' 
-                              : 'text-nm-text'
+                              ? 'text-primary font-semibold' 
+                              : 'text-nm-text group-hover:text-primary'
                         }`}>
                           {ep.url.split('//')[1]?.split('/')[0] || ep.url}
                         </span>
                       </button>
                       
                       {/* Status Badges and Actions */}
-                      <div className="flex gap-0.5 items-center">
+                      <div className="flex gap-1 items-center flex-shrink-0">
                         {ep.failures > 0 && (
-                          <span className="px-0.5 py-0.5 bg-nm-warning text-white rounded text-xs font-sf font-medium">
+                          <span className="px-1.5 py-0.5 bg-nm-warning text-white rounded-nm-sm text-xs font-sf font-medium shadow-nm-button">
                             F:{ep.failures}
                           </span>
                         )}
                         {ep.isBlacklisted && (
-                          <span className="px-0.5 py-0.5 bg-nm-error text-white rounded text-xs font-sf font-medium">
+                          <span className="px-1.5 py-0.5 bg-nm-error text-white rounded-nm-sm text-xs font-sf font-medium shadow-nm-button">
                             BL
                           </span>
                         )}
                         {isCurrentRpc && (
-                          <span className="px-0.5 py-0.5 bg-primary text-white rounded text-xs font-sf font-medium">
+                          <span className="px-1.5 py-0.5 bg-primary text-white rounded-nm-sm text-xs font-sf font-semibold shadow-nm-button">
                             ●
                           </span>
                         )}
@@ -238,11 +238,11 @@ export function RpcStatus({ isMobile = false }: RpcStatusProps) {
                               e.stopPropagation()
                               handleRemoveRpc(ep.url)
                             }}
-                            className="w-3 h-3 flex items-center justify-center bg-nm-error text-white rounded hover:bg-nm-error/80 transition-all"
+                            className="w-5 h-5 flex items-center justify-center bg-nm-error text-white rounded-nm-sm hover:bg-nm-error/80 transition-all shadow-nm-button"
                             title="Remove custom RPC"
                           >
-                            <svg width="4" height="4" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <svg width="8" height="8" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                           </button>
                         )}
@@ -254,26 +254,28 @@ export function RpcStatus({ isMobile = false }: RpcStatusProps) {
             </div>
 
             {/* Footer */}
-            <div className="px-2 py-1 bg-gray-100 border-t border-gray-200">
-              <button
-                onClick={() => setShowDetails(false)}
-                className="w-full py-0.5 text-center text-nm-muted hover:text-nm-text transition-colors font-sf font-medium text-xs"
-              >
-                Close
-              </button>
-              
-              {process.env.NODE_ENV === 'development' && (
+            <div className="px-3 py-2 bg-nm-header border-t border-nm-border">
+              <div className="flex justify-between items-center gap-2">
                 <button
-                  onClick={() => {
-                    if (confirm('Reset all RPC preferences to defaults?')) {
-                      clearPreferences()
-                    }
-                  }}
-                  className="w-full mt-0.5 py-0.5 text-center text-nm-error hover:opacity-80 transition-opacity font-sf font-medium text-xs"
+                  onClick={() => setShowDetails(false)}
+                  className="flex-1 py-1 text-center text-nm-muted hover:text-nm-text transition-colors font-sf font-medium text-xs"
                 >
-                  Reset
+                  Close
                 </button>
-              )}
+                
+                {process.env.NODE_ENV === 'development' && (
+                  <button
+                    onClick={() => {
+                      if (confirm('Reset all RPC preferences to defaults?')) {
+                        clearPreferences()
+                      }
+                    }}
+                    className="px-2 py-1 text-center text-nm-error hover:opacity-80 transition-opacity font-sf font-medium text-xs rounded-nm-sm bg-nm-error/10"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )}

@@ -2,8 +2,8 @@ export default function AppBanner() {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:py-2 sm:px-4 sm:pr-2 gap-3 w-full min-h-14 bg-[#27282B] rounded-[24px] sm:rounded-[100px] shadow-[0px_4px_16px_rgba(48,50,54,0.12)]">
       {/* Text section */}
-      <div className="flex flex-row items-center gap-3 flex-1 w-full sm:max-w-[445px] h-6">
-        <p className="font-medium text-sm sm:text-base leading-5 sm:leading-6 tracking-[-0.01em] text-white">
+      <div className="flex flex-row justify-center sm:justify-start items-center gap-3 flex-1 w-full sm:max-w-[445px] h-6">
+        <p className="font-medium text-sm sm:text-base leading-5 sm:leading-6 tracking-[-0.01em] text-white text-center sm:text-left">
           Get the NEAR Mobile app and don't miss anything!
         </p>
       </div>
