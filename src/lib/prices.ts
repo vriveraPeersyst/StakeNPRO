@@ -61,40 +61,43 @@ export async function getNproEarned(accountId: string): Promise<NproEarnedData |
     return null
   }
 
+  // Block testnet accounts on client side as well for immediate feedback
+  if (accountId.endsWith('.testnet')) {
+    console.warn('Testnet accounts are not supported for NPRO earnings')
+    return {
+      earned: '0',
+      accountId: accountId
+    }
+  }
+
   try {
-    const response = await fetch(
-      `https://near-mobile-production.aws.peersyst.tech/api/npro/staked-earned/${accountId}`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // Add timeout to prevent hanging requests
-        signal: AbortSignal.timeout(10000), // 10 second timeout
-      }
-    )
+    // Use our Next.js API route to avoid CORS issues
+    const response = await fetch(`/api/npro-earnings/${accountId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // Add timeout to prevent hanging requests
+      signal: AbortSignal.timeout(10000), // 10 second timeout
+    })
     
     if (!response.ok) {
-      // Handle specific error codes
-      if (response.status === 404) {
-        // Account not found, return 0 earned
-        return {
-          earned: '0',
-          accountId: accountId
-        }
+      // The API route handles all error cases and returns appropriate responses
+      const errorData = await response.json().catch(() => ({}))
+      console.warn('Failed to fetch NPRO earned:', errorData.error || `HTTP ${response.status}`)
+      
+      // Always return default values to prevent UI issues
+      return {
+        earned: '0',
+        accountId: accountId
       }
-      throw new Error(`Failed to fetch NPRO earned data: ${response.status} ${response.statusText}`)
     }
 
     const data = await response.json()
     
-    // Validate the response structure
-    if (typeof data !== 'object' || data === null) {
-      throw new Error('Invalid response format')
-    }
-    
+    // The API route already validates the response structure
     return {
-      earned: String(data.earned || '0'), // Ensure it's always a string
-      accountId: accountId
+      earned: String(data.earned || '0'),
+      accountId: data.accountId || accountId
     }
   } catch (error) {
     console.warn('Failed to fetch NPRO earned:', error)
