@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import AmountInput from './AmountInput'
 import AccountDropdown from './AccountDropdown'
 import { useWallet } from '@/hooks/useWallet'
@@ -265,10 +266,13 @@ export default function StakeCard() {
                 <div className="flex flex-row justify-center items-center gap-3 sm:gap-6 w-full min-h-11 bg-white">
                   {/* NEAR Icon */}
                   <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-none">
-                    <img 
-                      src="/icons/neartoken.svg" 
+                    <Image 
+                      src="/icons/neartoken.png" 
                       alt="NEAR Token" 
+                      width={44}
+                      height={44}
                       className="w-full h-full object-cover"
+                      quality={95}
                     />
                   </div>
                   
@@ -365,10 +369,13 @@ export default function StakeCard() {
               <div className="flex flex-row justify-center items-center gap-3 sm:gap-6 w-full min-h-11 bg-white">
                 {/* NEAR Icon */}
                 <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-none">
-                  <img 
-                    src="/icons/neartoken.svg" 
+                  <Image 
+                    src="/icons/neartoken.png" 
                     alt="NEAR Token" 
+                    width={44}
+                    height={44}
                     className="w-full h-full object-cover"
+                    quality={95}
                   />
                 </div>
                 
@@ -403,10 +410,13 @@ export default function StakeCard() {
             {(!staked || staked === '0' || parseFloat(formatNearAmount(staked)) <= 0) && (!unstaked || unstaked === '0') && (
               <div className="flex flex-row justify-center items-center gap-3 sm:gap-6 w-full min-h-11 bg-white">
                 <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-none">
-                  <img 
-                    src="/icons/neartoken.svg" 
+                  <Image 
+                    src="/icons/neartoken.png" 
                     alt="NEAR Token" 
+                    width={44}
+                    height={44}
                     className="w-full h-full object-cover"
+                    quality={95}
                   />
                 </div>
                 <div className="flex flex-col justify-center items-start flex-1">
@@ -424,10 +434,13 @@ export default function StakeCard() {
             <div className="flex flex-row justify-center items-center gap-3 sm:gap-6 w-full min-h-11 bg-white">
               {/* NPRO Icon */}
               <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-none">
-                <img 
-                  src="/icons/npro-token.svg" 
+                <Image 
+                  src="/icons/npro-token.png" 
                   alt="NPRO Token" 
+                  width={44}
+                  height={44}
                   className="w-full h-full object-cover"
+                  quality={95}
                 />
               </div>
               

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Navbar from '@/components/Navbar'
 import StakeCard from '@/components/StakeCard'
 import AppBanner from '@/components/AppBanner'
@@ -34,10 +35,14 @@ export default function HomePage() {
               <span className="inline-flex items-center gap-1 sm:gap-2">
                 Earn 
                 {/* NPRO 3D Icon */}
-                <img 
-                  src="/icons/npro3dicon.svg" 
+                <Image 
+                  src="/icons/npro3dicon.png" 
                   alt="NPRO Token" 
+                  width={72}
+                  height={72}
                   className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-18 lg:h-18"
+                  quality={95}
+                  priority
                 />
               </span>{' '}
               NPRO now.

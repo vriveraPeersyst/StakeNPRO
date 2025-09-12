@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { ChevronDown } from 'lucide-react'
 
 interface AmountInputProps {
@@ -116,10 +117,13 @@ export default function AmountInput({
             <div className="flex flex-row justify-center items-center px-3 py-1.5 gap-2 w-full sm:w-[88px] h-8 sm:h-9 bg-[#F6F6F6] rounded-[100px]">
               {/* NEAR token icon - 20x20px on mobile, 24x24px on desktop */}
               <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden flex-none">
-                <img 
-                  src="/icons/neartoken.svg" 
+                <Image 
+                  src="/icons/neartoken.png" 
                   alt="NEAR Token" 
+                  width={24}
+                  height={24}
                   className="w-full h-full object-cover"
+                  quality={95}
                 />
               </div>
               {/* NEAR label */}
