@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { copyToClipboard } from '@/lib/utils'
 
 interface AccountDropdownProps {
   accountId: string
@@ -54,13 +55,17 @@ export default function AccountDropdown({ accountId, walletName, onSignOut }: Ac
   }
 
   const handleCopyAddress = async () => {
-    try {
-      await navigator.clipboard.writeText(accountId)
+    const success = await copyToClipboard(accountId)
+    
+    if (success) {
       setShowToast(true)
       setIsOpen(false)
       setTimeout(() => setShowToast(false), 3000)
-    } catch (err) {
-      console.error('Failed to copy address:', err)
+    } else {
+      // Handle copy failure - you might want to show a different message
+      console.warn('Copy to clipboard failed')
+      // Still close dropdown but maybe don't show success toast
+      setIsOpen(false)
     }
   }
 

@@ -24,7 +24,12 @@ export const setupWallet = async () => {
       setupHereWallet() as any,
       setupHotWallet() as any,
       setupMeteorWallet() as any,
-      setupNearMobileWallet() as any,
+      setupNearMobileWallet({
+        dAppMetadata: {
+          logoUrl: "https://peersyst-public-production.s3.eu-west-1.amazonaws.com/89437a64-a0c1-49ee-87be-35395122dc3e.png",
+          name: "StakeNPRO",
+        },
+      }) as any,
     ],
   })
 
