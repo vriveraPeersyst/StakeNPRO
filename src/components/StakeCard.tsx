@@ -11,7 +11,7 @@ import { useUnstake } from '@/hooks/useUnstake'
 import { useWithdraw } from '@/hooks/useWithdraw'
 import { formatNearAmount, NEAR_BUFFER } from '@/lib/pool'
 import { useQuery } from '@tanstack/react-query'
-import { getNearPrice } from '@/lib/prices'
+import { getNearPrice, getNproEarned, NproEarnedData } from '@/lib/prices'
 
 type Tab = 'stake' | 'position' | 'why'
 
@@ -34,8 +34,25 @@ export default function StakeCard() {
   const { data: priceData } = useQuery({
     queryKey: ['nearPrice'],
     queryFn: getNearPrice,
-    refetchInterval: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, // Consider data stale after 5 minutes
+    gcTime: 30 * 60 * 1000, // Keep price data in cache for 30 minutes
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+    refetchIntervalInBackground: false, // Don't refetch in background
+    retry: 3, // Retry failed price requests up to 3 times
     enabled: process.env.NEXT_PUBLIC_SHOW_FIAT === 'true',
+  })
+
+  // Fetch NPRO earned data
+  const { data: nproEarnedData, isLoading: nproEarnedLoading } = useQuery<NproEarnedData | null>({
+    queryKey: ['nproEarned', accountId],
+    queryFn: () => getNproEarned(accountId!),
+    staleTime: 2 * 60 * 1000, // Consider data stale after 2 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (garbage collection time)
+    refetchInterval: 2 * 60 * 1000, // Refetch every 2 minutes (only when component is visible)
+    refetchIntervalInBackground: false, // Don't refetch in background
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    retry: 2, // Retry failed requests up to 2 times
+    enabled: isConnected && !!accountId,
   })
 
   const handleMaxClick = () => {
@@ -420,7 +437,16 @@ export default function StakeCard() {
                   NPRO earned
                 </div>
                 <div className="w-full font-sf font-semibold text-sm leading-4 sm:leading-5 tracking-[-0.01em] text-[#3F4246]">
-                  Coming soon...
+                  {nproEarnedLoading ? (
+                    'Loading...'
+                  ) : nproEarnedData?.earned !== undefined ? (
+                    `${parseFloat(nproEarnedData.earned || '0').toLocaleString(undefined, { 
+                      minimumFractionDigits: 0, 
+                      maximumFractionDigits: 6 
+                    })} NPRO`
+                  ) : (
+                    '0 NPRO'
+                  )}
                 </div>
               </div>
             </div>
