@@ -5,10 +5,10 @@ const PEERSYST_API_BASE = process.env.PEERSYST_API_URL || 'https://near-mobile-p
 
 export async function GET(
   request: Request,
-  { params }: { params: { accountId: string } }
+  { params }: { params: Promise<{ accountId: string }> }
 ) {
   try {
-    const { accountId } = params
+    const { accountId } = await params
 
     // Basic validation - let Peersyst server handle account format validation
     if (!accountId || typeof accountId !== 'string') {
