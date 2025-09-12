@@ -40,10 +40,10 @@ export default function Navbar() {
             Home
           </a>
           <div className="relative">
+            <div className="absolute w-8 h-1 left-1/2 transform -translate-x-1/2 -top-4 bg-primary"></div>
             <span className="font-sf font-medium text-sm xl:text-base leading-5 xl:leading-6 tracking-[-0.01em] text-nm-text cursor-pointer whitespace-nowrap">
               NPRO
             </span>
-            <div className="absolute w-6 h-1 left-1 -bottom-4 bg-primary"></div>
           </div>
           <a
             href="https://discord.com/invite/y3dsWCJFcM"
