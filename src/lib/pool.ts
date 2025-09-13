@@ -160,7 +160,32 @@ export async function withdrawAll(selector: WalletSelector): Promise<string> {
 
 // Utility functions
 export function formatNearAmount(yoctoNear: string): string {
-  return utils.format.formatNearAmount(yoctoNear, 5)
+  try {
+    // Convert yoctoNEAR to NEAR manually for better precision control
+    // 1 NEAR = 10^24 yoctoNEAR
+    const yoctoNum = BigInt(yoctoNear)
+    const nearDecimals = BigInt('1000000000000000000000000') // 10^24
+    
+    // Get whole NEAR part
+    const wholePart = yoctoNum / nearDecimals
+    // Get fractional part
+    const fractionalPart = yoctoNum % nearDecimals
+    
+    // Convert to string with proper decimal places
+    const fractionalStr = fractionalPart.toString().padStart(24, '0')
+    // Take only first 6 decimal places and remove trailing zeros
+    const trimmedFractional = fractionalStr.slice(0, 6).replace(/0+$/, '')
+    
+    if (trimmedFractional === '') {
+      return wholePart.toString()
+    } else {
+      return `${wholePart.toString()}.${trimmedFractional}`
+    }
+  } catch (error) {
+    console.error('Error formatting NEAR amount:', error)
+    // Fallback to utils function
+    return utils.format.formatNearAmount(yoctoNear, 6)
+  }
 }
 
 export function parseNearAmount(nearAmount: string): string | null {

@@ -1,5 +1,5 @@
 import { setupWallet } from '@/lib/wallet'
-import { providers } from 'near-api-js'
+import { providers, utils } from 'near-api-js'
 import { rpcManager } from './rpcManager'
 
 const NETWORK_ID = process.env.NEXT_PUBLIC_NETWORK_ID || 'mainnet'
@@ -60,6 +60,9 @@ export async function getAccountBalance(accountId: string): Promise<string> {
       })
 
       const balance = (account as any).amount
+      console.log(`Raw yoctoNEAR balance for ${accountId}:`, balance)
+      console.log(`Balance with NEAR utils (6 decimals):`, utils.format.formatNearAmount(balance, 6))
+      console.log(`Balance with NEAR utils (24 decimals):`, utils.format.formatNearAmount(balance, 24))
       // Convert yoctoNEAR to NEAR (1 NEAR = 10^24 yoctoNEAR)
       return balance
     })

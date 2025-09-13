@@ -86,7 +86,10 @@ export default function AmountInput({
             {isBalanceLoading ? (
               'Loading...'
             ) : (
-              `${parseFloat(availableBalance).toFixed(6)} NEAR`
+              `${parseFloat(availableBalance).toLocaleString(undefined, { 
+                minimumFractionDigits: 0, 
+                maximumFractionDigits: 6 
+              })} NEAR`
             )}
           </span>
         </div>
