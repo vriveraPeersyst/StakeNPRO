@@ -65,7 +65,7 @@ export async function getNproEarned(accountId: string): Promise<NproEarnedData |
   if (accountId.endsWith('.testnet')) {
     console.warn('Testnet accounts are not supported for NPRO earnings')
     return {
-      earned: 'No data',
+      earned: '0',
       accountId: accountId
     }
   }
@@ -77,7 +77,7 @@ export async function getNproEarned(accountId: string): Promise<NproEarnedData |
         'Content-Type': 'application/json',
       },
       // Add timeout to prevent hanging requests
-      signal: AbortSignal.timeout(10000), // 10 second timeout
+      signal: AbortSignal.timeout(65000), // 65 second timeout (5s more than backend)
     })
     
     if (!response.ok) {

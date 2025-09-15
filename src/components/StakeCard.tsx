@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import AmountInput from './AmountInput'
 import AccountDropdown from './AccountDropdown'
@@ -17,7 +18,34 @@ import { getNearPrice, getNproEarned, NproEarnedData } from '@/lib/prices'
 type Tab = 'stake' | 'position' | 'why'
 
 export default function StakeCard() {
-  const [activeTab, setActiveTab] = useState<Tab>('stake')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  // Get initial tab from URL params, default to 'stake'
+  const getInitialTab = (): Tab => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam === 'position' || tabParam === 'why') {
+      return tabParam as Tab
+    }
+    return 'stake'
+  }
+  
+  const [activeTab, setActiveTab] = useState<Tab>(getInitialTab())
+  
+  // Function to change tab and update URL
+  const changeTab = (tab: Tab) => {
+    setActiveTab(tab)
+    // Update URL without page reload
+    const newSearchParams = new URLSearchParams(searchParams)
+    if (tab === 'stake') {
+      newSearchParams.delete('tab') // Don't show tab param for default tab
+    } else {
+      newSearchParams.set('tab', tab)
+    }
+    const newUrl = newSearchParams.toString() ? `?${newSearchParams.toString()}` : '/'
+    router.replace(newUrl, { scroll: false })
+  }
+  
   const [stakeAmount, setStakeAmount] = useState('')
   const [selectedPercentage, setSelectedPercentage] = useState<string | null>(null)
   const [showUnstakeModal, setShowUnstakeModal] = useState(false)
@@ -31,12 +59,20 @@ export default function StakeCard() {
   const { unstake, unstakeAll, isLoading: unstakeLoading, txHash: unstakeTxHash } = useUnstake()
   const { withdraw, isLoading: withdrawLoading, txHash: withdrawTxHash } = useWithdraw()
 
+  // Sync tab state with URL changes (browser back/forward)
+  useEffect(() => {
+    const newTab = getInitialTab()
+    if (newTab !== activeTab) {
+      setActiveTab(newTab)
+    }
+  }, [searchParams])
+
   // Switch to position tab after successful stake
   const previousStakeTxHash = useRef<string | null>(null)
   useEffect(() => {
     if (stakeTxHash && stakeTxHash !== previousStakeTxHash.current) {
       previousStakeTxHash.current = stakeTxHash
-      setActiveTab('position')
+      changeTab('position') // Use changeTab instead of setActiveTab to update URL
     }
   }, [stakeTxHash])
 
@@ -471,7 +507,7 @@ export default function StakeCard() {
                       })} NPRO`
                     )
                   ) : (
-                    'No data'
+                    '0 NPRO'
                   )}
                 </div>
               </div>
@@ -604,7 +640,7 @@ export default function StakeCard() {
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => changeTab(tab.id)}
                       className={`relative flex justify-center items-center h-16 sm:h-20 px-2 transition-colors font-sf whitespace-nowrap ${getTabWidth(index)} ${
                         tab.active 
                           ? 'text-[#3F4246] font-medium border-b-2 border-[#5F8AFA]' 

@@ -28,18 +28,18 @@ export async function GET(
     const response = await fetch(apiUrl,
       {
         headers: {
-          'Content-Type': 'application/json',
-          // Add User-Agent to identify our service
-          'User-Agent': 'StakeNPRO-dApp/1.0',
+          // Use a more standard user agent that matches curl
+          'User-Agent': 'curl/8.7.1',
+          'Accept': '*/*',
         },
-        // Add timeout to prevent hanging requests
-        signal: AbortSignal.timeout(8000), // 8 second timeout
+        // Increase timeout to 60 seconds
+        signal: AbortSignal.timeout(60000), // 60 second timeout
       }
     )
 
     // Handle different response codes appropriately
     if (response.status === 404) {
-      // Account not found, return No data (standard response)
+      // Account not found, return No data (account doesn't exist in the system)
       return NextResponse.json({
         earned: 'No data',
         accountId: accountId
@@ -60,21 +60,23 @@ export async function GET(
       })
     }
 
-    const data = await response.json()
+    const contentType = response.headers.get('content-type') || ''
     
-    // Validate the response structure
-    if (typeof data !== 'object' || data === null) {
-      console.error('Invalid response format from Peersyst API:', data)
-      return NextResponse.json({
-        earned: 'No data',
-        accountId: accountId,
-        note: 'Invalid response format'
-      })
+    // Handle both JSON and plain text responses
+    let earnedValue = '0'
+    
+    if (contentType.includes('application/json')) {
+      const data = await response.json()
+      earnedValue = String(data.earned || data || '0')
+    } else {
+      // Handle plain text response
+      const textData = await response.text()
+      earnedValue = textData.trim() || '0'
     }
 
     // Return validated data
     return NextResponse.json({
-      earned: String(data.earned || '0'), // Ensure it's always a string
+      earned: earnedValue,
       accountId: accountId
     })
 

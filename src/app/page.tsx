@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
 import StakeCard from '@/components/StakeCard'
@@ -58,7 +59,13 @@ export default function HomePage() {
             {/* Staking Interface Section */}
             <section className="w-full" aria-labelledby="staking-section">
               <h2 id="staking-section" className="sr-only">NEAR Token Staking Interface</h2>
-              <StakeCard />
+              <Suspense fallback={
+                <div className="w-full max-w-[760px] mx-auto h-96 flex items-center justify-center">
+                  <p className="text-nm-muted">Loading...</p>
+                </div>
+              }>
+                <StakeCard />
+              </Suspense>
             </section>
             
             {/* Mobile App Promotion Section */}
