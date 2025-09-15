@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import AmountInput from './AmountInput'
 import AccountDropdown from './AccountDropdown'
@@ -30,6 +30,15 @@ export default function StakeCard() {
   const { stake, isLoading: stakeLoading, txHash: stakeTxHash } = useStake()
   const { unstake, unstakeAll, isLoading: unstakeLoading, txHash: unstakeTxHash } = useUnstake()
   const { withdraw, isLoading: withdrawLoading, txHash: withdrawTxHash } = useWithdraw()
+
+  // Switch to position tab after successful stake
+  const previousStakeTxHash = useRef<string | null>(null)
+  useEffect(() => {
+    if (stakeTxHash && stakeTxHash !== previousStakeTxHash.current) {
+      previousStakeTxHash.current = stakeTxHash
+      setActiveTab('position')
+    }
+  }, [stakeTxHash])
 
   // Fetch NEAR price for fiat display
   const { data: priceData } = useQuery({

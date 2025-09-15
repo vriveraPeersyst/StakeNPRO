@@ -74,6 +74,37 @@ export default function AccountDropdown({ accountId, walletName, onSignOut }: Ac
     onSignOut()
   }
 
+  const handleForceDisconnect = () => {
+    setIsOpen(false)
+    
+    // Clear all localStorage and sessionStorage
+    localStorage.clear()
+    sessionStorage.clear()
+    
+    // Clear all cookies (only same-origin cookies)
+    document.cookie.split(";").forEach((c) => {
+      const eqPos = c.indexOf("=")
+      const name = eqPos > -1 ? c.substr(0, eqPos).trim() : c.trim()
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`
+    })
+    
+    // Clear IndexedDB if available
+    if ('indexedDB' in window) {
+      indexedDB.databases?.().then((databases) => {
+        databases.forEach((db) => {
+          if (db.name) {
+            indexedDB.deleteDatabase(db.name)
+          }
+        })
+      }).catch(() => {
+        // Silently handle errors in IndexedDB cleanup
+      })
+    }
+    
+    // Force reload the page to ensure complete reset
+    window.location.reload()
+  }
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Account Button - responsive design */}
@@ -125,6 +156,14 @@ export default function AccountDropdown({ accountId, walletName, onSignOut }: Ac
               className="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors font-sf"
             >
               Disconnect Wallet
+            </button>
+            <div className="border-t border-gray-100 my-1"></div>
+            <button
+              onClick={handleForceDisconnect}
+              className="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm text-red-700 hover:bg-red-50 active:bg-red-100 transition-colors font-sf font-medium"
+              title="Clears all cache and forces a complete reset"
+            >
+              Force Disconnect
             </button>
           </div>
         </div>
