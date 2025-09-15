@@ -52,3 +52,39 @@ export const formatAccountId = (accountId: string, maxLength: number = 20): stri
 export const isClipboardSupported = (): boolean => {
   return !!(navigator?.clipboard?.writeText)
 }
+
+/**
+ * Format NPRO amount from yoctoNPRO (24 decimals) to NPRO
+ * @param yoctoAmount - The raw amount in yoctoNPRO (24 decimals)
+ * @returns string - Formatted NPRO amount
+ */
+export const formatNproAmount = (yoctoAmount: string | number): string => {
+  if (!yoctoAmount || yoctoAmount === 'No data') {
+    return yoctoAmount as string
+  }
+
+  try {
+    // Convert to string and handle scientific notation
+    const amountStr = String(yoctoAmount)
+    
+    // If it's already a small decimal number, return as is
+    if (parseFloat(amountStr) < 1000) {
+      return parseFloat(amountStr).toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 6
+      })
+    }
+
+    // Convert from yoctoNPRO (24 decimals) to NPRO
+    const divisor = Math.pow(10, 24)
+    const nproAmount = parseFloat(amountStr) / divisor
+    
+    return nproAmount.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 6
+    })
+  } catch (error) {
+    console.warn('Error formatting NPRO amount:', error)
+    return '0'
+  }
+}

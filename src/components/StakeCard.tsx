@@ -14,6 +14,7 @@ import { useWithdraw } from '@/hooks/useWithdraw'
 import { formatNearAmount, NEAR_BUFFER } from '@/lib/pool'
 import { useQuery } from '@tanstack/react-query'
 import { getNearPrice, getNproEarned, NproEarnedData } from '@/lib/prices'
+import { formatNproAmount } from '@/lib/utils'
 
 type Tab = 'stake' | 'position' | 'why'
 
@@ -501,10 +502,7 @@ export default function StakeCard() {
                     nproEarnedData.earned === 'No data' ? (
                       'No data'
                     ) : (
-                      `${parseFloat(nproEarnedData.earned || '0').toLocaleString(undefined, { 
-                        minimumFractionDigits: 0, 
-                        maximumFractionDigits: 6 
-                      })} NPRO`
+                      `${formatNproAmount(nproEarnedData.earned || '0')} NPRO`
                     )
                   ) : (
                     '0 NPRO'
