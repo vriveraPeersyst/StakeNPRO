@@ -65,14 +65,14 @@ export async function getNproEarned(accountId: string): Promise<NproEarnedData |
   if (accountId.endsWith('.testnet')) {
     console.warn('Testnet accounts are not supported for NPRO earnings')
     return {
-      earned: '0',
+      earned: 'No data',
       accountId: accountId
     }
   }
 
   try {
     // Use our Next.js API route to avoid CORS issues
-    const response = await fetch(`/api/npro-earnings/${accountId}`, {
+    const response = await fetch(`/api/npro/staked-earned/${accountId}`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -85,9 +85,9 @@ export async function getNproEarned(accountId: string): Promise<NproEarnedData |
       const errorData = await response.json().catch(() => ({}))
       console.warn('Failed to fetch NPRO earned:', errorData.error || `HTTP ${response.status}`)
       
-      // Always return default values to prevent UI issues
+      // Always return No data to prevent UI issues
       return {
-        earned: '0',
+        earned: 'No data',
         accountId: accountId
       }
     }
@@ -101,9 +101,9 @@ export async function getNproEarned(accountId: string): Promise<NproEarnedData |
     }
   } catch (error) {
     console.warn('Failed to fetch NPRO earned:', error)
-    // Return default values instead of null to prevent UI issues
+    // Return No data instead of null to prevent UI issues
     return {
-      earned: '0',
+      earned: 'No data',
       accountId: accountId
     }
   }

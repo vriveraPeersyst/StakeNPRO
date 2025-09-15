@@ -462,12 +462,16 @@ export default function StakeCard() {
                   {nproEarnedLoading ? (
                     'Loading...'
                   ) : nproEarnedData?.earned !== undefined ? (
-                    `${parseFloat(nproEarnedData.earned || '0').toLocaleString(undefined, { 
-                      minimumFractionDigits: 0, 
-                      maximumFractionDigits: 6 
-                    })} NPRO`
+                    nproEarnedData.earned === 'No data' ? (
+                      'No data'
+                    ) : (
+                      `${parseFloat(nproEarnedData.earned || '0').toLocaleString(undefined, { 
+                        minimumFractionDigits: 0, 
+                        maximumFractionDigits: 6 
+                      })} NPRO`
+                    )
                   ) : (
-                    '0 NPRO'
+                    'No data'
                   )}
                 </div>
               </div>

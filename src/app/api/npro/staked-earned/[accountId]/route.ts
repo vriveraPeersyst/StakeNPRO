@@ -7,8 +7,11 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ accountId: string }> }
 ) {
+  let accountId: string = ''
+  
   try {
-    const { accountId } = await params
+    const resolvedParams = await params
+    accountId = resolvedParams.accountId
 
     // Basic validation - let Peersyst server handle account format validation
     if (!accountId || typeof accountId !== 'string') {
@@ -17,9 +20,12 @@ export async function GET(
         { status: 400 }
       )
     }
+
+    const apiUrl = `${PEERSYST_API_BASE}/npro/staked-earned/${accountId}`
+    console.log('Fetching NPRO data from:', apiUrl)
+
     // Make the request to Peersyst API from server-side (no CORS issues)
-    const response = await fetch(
-      `${PEERSYST_API_BASE}/npro/staked-earned/${accountId}`,
+    const response = await fetch(apiUrl,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -27,28 +33,31 @@ export async function GET(
           'User-Agent': 'StakeNPRO-dApp/1.0',
         },
         // Add timeout to prevent hanging requests
-        signal: AbortSignal.timeout(10000), // 10 second timeout
+        signal: AbortSignal.timeout(8000), // 8 second timeout
       }
     )
 
     // Handle different response codes appropriately
     if (response.status === 404) {
-      // Account not found, return 0 earned (standard response)
+      // Account not found, return No data (standard response)
       return NextResponse.json({
-        earned: '0',
+        earned: 'No data',
         accountId: accountId
       })
     }
 
     if (!response.ok) {
       console.error(`Peersyst API error: ${response.status} ${response.statusText}`)
-      return NextResponse.json(
-        { 
-          error: 'Failed to fetch NPRO earnings data',
-          details: `API returned ${response.status}`
-        },
-        { status: 502 } // Bad Gateway - external service error
-      )
+      console.error('Response URL:', response.url)
+      const errorText = await response.text().catch(() => 'Unable to read error response')
+      console.error('Error response body:', errorText)
+      
+      // Return No data for API errors instead of throwing error
+      return NextResponse.json({
+        earned: 'No data',
+        accountId: accountId,
+        note: 'Service temporarily unavailable'
+      })
     }
 
     const data = await response.json()
@@ -56,10 +65,11 @@ export async function GET(
     // Validate the response structure
     if (typeof data !== 'object' || data === null) {
       console.error('Invalid response format from Peersyst API:', data)
-      return NextResponse.json(
-        { error: 'Invalid response format from earnings service' },
-        { status: 502 }
-      )
+      return NextResponse.json({
+        earned: 'No data',
+        accountId: accountId,
+        note: 'Invalid response format'
+      })
     }
 
     // Return validated data
@@ -73,17 +83,22 @@ export async function GET(
     
     // Handle timeout specifically
     if (error instanceof Error && error.name === 'AbortError') {
-      return NextResponse.json(
-        { error: 'Request timeout - earnings service unavailable' },
-        { status: 504 } // Gateway Timeout
-      )
+      console.error('Request timed out for account:', accountId)
+      // Return No data instead of error to prevent UI issues
+      return NextResponse.json({
+        earned: 'No data',
+        accountId: accountId,
+        note: 'Service temporarily unavailable'
+      })
     }
 
-    // Handle network errors
-    return NextResponse.json(
-      { error: 'Unable to connect to earnings service' },
-      { status: 502 } // Bad Gateway
-    )
+    // Handle network errors - return No data to keep UI working
+    console.error('Network error for account:', accountId, error)
+    return NextResponse.json({
+      earned: 'No data',
+      accountId: accountId,
+      note: 'Service temporarily unavailable'
+    })
   }
 }
 
