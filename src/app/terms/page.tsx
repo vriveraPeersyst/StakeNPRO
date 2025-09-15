@@ -1,3 +1,23 @@
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'Terms of Service for NPRO Stake - NEAR Mobile validator staking platform. Review staking risks, disclaimers, and user responsibilities.',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: '/terms',
+  },
+  openGraph: {
+    title: 'Terms of Service | NPRO Stake',
+    description: 'Terms of Service for NPRO Stake - NEAR Mobile validator staking platform.',
+    url: '/terms',
+    type: 'website',
+  },
+}
+
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-white p-8">

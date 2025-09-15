@@ -28,9 +28,9 @@ export default function HomePage() {
 
         {/* Main content area */}
         <main className="flex-1 flex flex-col items-center justify-center mt-4 sm:mt-8 md:mt-24">
-          {/* Hero title */}
-          <div className="text-center mb-6 sm:mb-8 md:mb-12 px-4">
-            <h1 className="text-xl sm:text-2xl md:text-4xl leading-7 sm:leading-8 md:leading-12 font-semibold text-nm-text tracking-tight">
+          {/* Hero section */}
+          <section className="text-center mb-6 sm:mb-8 md:mb-12 px-4" aria-labelledby="hero-title">
+            <h1 id="hero-title" className="text-xl sm:text-2xl md:text-4xl leading-7 sm:leading-8 md:leading-12 font-semibold text-nm-text tracking-tight">
               Stake NEAR.{' '}
               <span className="inline-flex items-center gap-1 sm:gap-2">
                 Earn 
@@ -47,19 +47,25 @@ export default function HomePage() {
               </span>{' '}
               NPRO now.
             </h1>
-          </div>
+            <p className="sr-only">
+              Stake NEAR Protocol tokens with the official NEAR Mobile validator and earn NPRO rewards. 
+              Secure, transparent, and high-yield staking on the NEAR blockchain.
+            </p>
+          </section>
 
           {/* Main container with StakeCard and AppBanner */}
           <div className="flex flex-col items-start gap-2 w-full max-w-[760px] mx-auto -mt-2 sm:-mt-4 md:-mt-8 mb-6 sm:mb-8 md:mb-16 px-4">
-            {/* Stake Card */}
-            <div className="w-full">
+            {/* Staking Interface Section */}
+            <section className="w-full" aria-labelledby="staking-section">
+              <h2 id="staking-section" className="sr-only">NEAR Token Staking Interface</h2>
               <StakeCard />
-            </div>
+            </section>
             
-            {/* App Banner */}
-            <div className="w-full">
+            {/* Mobile App Promotion Section */}
+            <section className="w-full" aria-labelledby="app-section">
+              <h2 id="app-section" className="sr-only">NEAR Mobile App Download</h2>
               <AppBanner />
-            </div>
+            </section>
           </div>
         </main>
 

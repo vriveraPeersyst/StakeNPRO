@@ -1,3 +1,23 @@
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'Privacy Policy for NEAR Mobile and NPRO Stake platform. Learn about data collection, usage, and privacy protection measures.',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: '/privacy',
+  },
+  openGraph: {
+    title: 'Privacy Policy | NPRO Stake',
+    description: 'Privacy Policy for NEAR Mobile and NPRO Stake platform.',
+    url: '/privacy',
+    type: 'website',
+  },
+}
+
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-white p-8">

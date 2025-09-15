@@ -538,10 +538,15 @@ export default function StakeCard() {
             {/* Chart Image */}
             <div className="w-full lg:w-[357px] h-auto lg:h-[247px] flex-none">
               <img 
-                src="/icons/BondingCurve.svg" 
+                src="/icons/bondingCurve.png" 
                 alt="Bonding Curve Chart" 
-                className="w-full h-full object-cover rounded-lg"
-                style={{ filter: 'drop-shadow(0px 4px 16px rgba(63, 66, 70, 0.03))' }}
+                className="w-full h-full object-contain rounded-lg"
+                style={{ 
+                  filter: 'drop-shadow(0px 4px 16px rgba(63, 66, 70, 0.03))',
+                  imageRendering: 'crisp-edges'
+                }}
+                loading="lazy"
+                decoding="async"
               />
             </div>
             
