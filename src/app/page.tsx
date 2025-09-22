@@ -1,13 +1,23 @@
 'use client'
 
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
 import StakeCard from '@/components/StakeCard'
 import AppBanner from '@/components/AppBanner'
+import NPROCalculatorBanner from '@/components/NPROCalculatorBanner'
+import NPROCalculatorModal from '@/components/NPROCalculatorModal'
 import FooterBar from '@/components/FooterBar'
+import { useEarnedNpro } from '@/hooks/useEarnedNpro'
+import { useTotalStaked } from '@/hooks/useTotalStaked'
+import { useBalances } from '@/hooks/useBalances'
 
 export default function HomePage() {
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+  const { earnedNpro } = useEarnedNpro();
+  const { totalStaked } = useTotalStaked();
+  const { staked } = useBalances();
+
   return (
     <div className="min-h-screen bg-nm-header">
       {/* Background decorative elements */}
@@ -54,8 +64,14 @@ export default function HomePage() {
             </p>
           </section>
 
-          {/* Main container with StakeCard and AppBanner */}
+          {/* Main container with Calculator, StakeCard and AppBanner */}
           <div className="flex flex-col items-start gap-2 w-full max-w-[760px] mx-auto -mt-2 sm:-mt-4 md:-mt-8 mb-6 sm:mb-8 md:mb-16 px-4">
+            {/* NPRO Calculator Section */}
+            <section className="w-full" aria-labelledby="calculator-section">
+              <h2 id="calculator-section" className="sr-only">NPRO Rewards Calculator</h2>
+              <NPROCalculatorBanner onCalculateClick={() => setIsCalculatorOpen(true)} />
+            </section>
+            
             {/* Staking Interface Section */}
             <section className="w-full" aria-labelledby="staking-section">
               <h2 id="staking-section" className="sr-only">NEAR Token Staking Interface</h2>
@@ -79,6 +95,15 @@ export default function HomePage() {
         {/* Footer */}
         <FooterBar />
       </div>
+
+      {/* NPRO Calculator Modal */}
+      <NPROCalculatorModal
+        isOpen={isCalculatorOpen}
+        onClose={() => setIsCalculatorOpen(false)}
+        currentPoolTotal={totalStaked}
+        userEarnedNpro={earnedNpro}
+        userStakedBalance={staked}
+      />
     </div>
   )
 }
