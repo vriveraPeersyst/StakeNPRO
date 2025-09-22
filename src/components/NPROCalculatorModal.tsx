@@ -98,18 +98,43 @@ export default function NPROCalculatorModal({
     }
   }, [calculateRewards]);
 
-  // Handle date slider change
-  const handleDateSliderChange = (value: number) => {
-    const totalMs = maxDate.getTime() - minDate.getTime();
-    const selectedMs = minDate.getTime() + (totalMs * value / 100);
-    setStakingEndDate(new Date(selectedMs));
+  // NPRO release constants
+  const PRE_STAKING_NPRO_PERCENTAGE = 8.33; // 8.33% released at pre-staking end
+  const TOTAL_NPRO_PERCENTAGE = 100; // 100% released at final end
+
+  // Handle NPRO percentage slider change
+  const handleNproSliderChange = (value: number) => {
+    // Map NPRO percentage to time
+    let targetDate: Date;
+    
+    if (value <= PRE_STAKING_NPRO_PERCENTAGE) {
+      // Linear interpolation from current date to pre-staking end
+      const ratio = value / PRE_STAKING_NPRO_PERCENTAGE;
+      const totalMs = preStakingEnd.getTime() - minDate.getTime();
+      const selectedMs = minDate.getTime() + (totalMs * ratio);
+      targetDate = new Date(selectedMs);
+    } else {
+      // Linear interpolation from pre-staking end to final end
+      const ratio = (value - PRE_STAKING_NPRO_PERCENTAGE) / (TOTAL_NPRO_PERCENTAGE - PRE_STAKING_NPRO_PERCENTAGE);
+      const totalMs = maxDate.getTime() - preStakingEnd.getTime();
+      const selectedMs = preStakingEnd.getTime() + (totalMs * ratio);
+      targetDate = new Date(selectedMs);
+    }
+    
+    setStakingEndDate(targetDate);
   };
 
-  // Get slider value from date
-  const getSliderValue = () => {
-    const totalMs = maxDate.getTime() - minDate.getTime();
-    const currentMs = stakingEndDate.getTime() - minDate.getTime();
-    return Math.max(0, Math.min(100, (currentMs / totalMs) * 100));
+  // Get NPRO percentage from date
+  const getNproPercentage = () => {
+    if (stakingEndDate <= preStakingEnd) {
+      // Linear mapping from current date to pre-staking end = 0% to 8.33%
+      const ratio = (stakingEndDate.getTime() - minDate.getTime()) / (preStakingEnd.getTime() - minDate.getTime());
+      return Math.max(0, Math.min(PRE_STAKING_NPRO_PERCENTAGE, ratio * PRE_STAKING_NPRO_PERCENTAGE));
+    } else {
+      // Linear mapping from pre-staking end to final end = 8.33% to 100%
+      const ratio = (stakingEndDate.getTime() - preStakingEnd.getTime()) / (maxDate.getTime() - preStakingEnd.getTime());
+      return PRE_STAKING_NPRO_PERCENTAGE + (ratio * (TOTAL_NPRO_PERCENTAGE - PRE_STAKING_NPRO_PERCENTAGE));
+    }
   };
 
   // Format date for display
@@ -227,29 +252,29 @@ export default function NPROCalculatorModal({
               Staking Duration
             </label>
             
-            {/* Date Range Display */}
+            {/* NPRO Release Range Display */}
             <div className="flex items-center justify-between text-xs text-[#999999] font-sf">
-              <span>Pre Staking End Date</span>
-              <span>Sep 15, 2030</span>
+              <span>0% NPRO Released</span>
+              <span>100% NPRO Released</span>
             </div>
 
             {/* Progress Bar / Slider */}
             <div className="relative px-2">
               <div className="h-3 bg-[#F6F6F6] rounded-full overflow-hidden shadow-inner">
-                {/* Pre-staking period (until Dec 15, 2025) */}
+                {/* Pre-staking period (0% to 8.33%) */}
                 <div 
                   className="h-full bg-gradient-to-r from-[#5F8AFA] to-[#7B68EE]"
                   style={{ 
-                    width: `${Math.min(getSliderValue(), ((preStakingEnd.getTime() - minDate.getTime()) / (maxDate.getTime() - minDate.getTime())) * 100)}%` 
+                    width: `${Math.min(getNproPercentage(), PRE_STAKING_NPRO_PERCENTAGE)}%` 
                   }}
                 />
-                {/* Regular staking period (after Dec 15, 2025) */}
-                {getSliderValue() > ((preStakingEnd.getTime() - minDate.getTime()) / (maxDate.getTime() - minDate.getTime())) * 100 && (
+                {/* Regular staking period (8.33% to 100%) */}
+                {getNproPercentage() > PRE_STAKING_NPRO_PERCENTAGE && (
                   <div 
                     className="h-full bg-gradient-to-r from-emerald-400 to-green-500 absolute top-0"
                     style={{ 
-                      left: `${((preStakingEnd.getTime() - minDate.getTime()) / (maxDate.getTime() - minDate.getTime())) * 100}%`,
-                      width: `${getSliderValue() - ((preStakingEnd.getTime() - minDate.getTime()) / (maxDate.getTime() - minDate.getTime())) * 100}%` 
+                      left: `${PRE_STAKING_NPRO_PERCENTAGE}%`,
+                      width: `${getNproPercentage() - PRE_STAKING_NPRO_PERCENTAGE}%` 
                     }}
                   />
                 )}
@@ -259,16 +284,40 @@ export default function NPROCalculatorModal({
               <input
                 type="range"
                 min="0"
-                max="100"
-                value={getSliderValue()}
-                onChange={(e) => handleDateSliderChange(parseFloat(e.target.value))}
+                max="1824"
+                step="1"
+                value={Math.round((getNproPercentage() / 100) * 1824)}
+                onChange={(e) => {
+                  const stepValue = parseInt(e.target.value);
+                  const percentageValue = (stepValue / 1824) * 100;
+                  // Add snap-to functionality for pre-staking end date (8.33%)
+                  const snapThreshold = 0.5; // 0.5% tolerance
+                  const snappedValue = Math.abs(percentageValue - PRE_STAKING_NPRO_PERCENTAGE) <= snapThreshold 
+                    ? PRE_STAKING_NPRO_PERCENTAGE 
+                    : percentageValue;
+                  handleNproSliderChange(snappedValue);
+                }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
               
+              {/* Pre-staking End Marker */}
+              <div 
+                className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-orange-400 rounded-full cursor-pointer hover:bg-orange-500 transition-colors z-10 flex items-center justify-center"
+                style={{ left: `${PRE_STAKING_NPRO_PERCENTAGE}%` }}
+                onClick={() => handleNproSliderChange(PRE_STAKING_NPRO_PERCENTAGE)}
+                title="Click to set to pre-staking end date"
+              >
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+              
               {/* Slider Thumb Visual */}
               <div 
-                className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-[#5F8AFA] rounded-full shadow-lg pointer-events-none"
-                style={{ left: `${getSliderValue()}%` }}
+                className={`absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-white rounded-full shadow-lg pointer-events-none ${
+                  Math.abs(getNproPercentage() - PRE_STAKING_NPRO_PERCENTAGE) < 0.1 
+                    ? 'border-2 border-orange-400' 
+                    : 'border-2 border-[#5F8AFA]'
+                }`}
+                style={{ left: `${getNproPercentage()}%` }}
               />
             </div>
 
@@ -281,10 +330,20 @@ export default function NPROCalculatorModal({
                 <span className="text-sm text-[#3F4246] font-sf font-medium">
                   {formatDate(stakingEndDate)}
                 </span>
+                {Math.abs(getNproPercentage() - PRE_STAKING_NPRO_PERCENTAGE) < 0.1 && (
+                  <span className="text-xs text-orange-600 font-sf font-medium">
+                    • Pre-staking ends
+                  </span>
+                )}
               </div>
-              <span className="text-sm text-[#999999] font-sf">
-                {epochsUntilEnd} epochs
-              </span>
+              <div className="text-right">
+                <span className="text-sm text-[#999999] font-sf">
+                  {epochsUntilEnd} epochs
+                </span>
+                <div className="text-xs text-[#5F8AFA] font-sf font-medium">
+                  {getNproPercentage().toFixed(1)}% NPRO Released
+                </div>
+              </div>
             </div>
           </div>
 
