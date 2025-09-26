@@ -16,14 +16,98 @@ export const STAKING_END_DATE = new Date('2030-09-15T00:00:00Z');
 
 // NEAR blockchain constants
 export const BLOCKS_PER_EPOCH = 43200; // 1 epoch = 43200 blocks
-export const DEFAULT_BLOCK_TIME = 0.6; // Default block time in seconds
+export const DEFAULT_BLOCK_TIME = 0.623; // Default block time in seconds
 
-// Start epoch (you may need to adjust this based on your system)
-export const START_EPOCH = 0; // This should be set to the actual start epoch of your system
+// NPRO distribution start parameters
+export const NPRO_START_BLOCK = 164137435; // Block when NPRO distribution started
+export const NPRO_START_EPOCH = 1; // Epoch 1 is when NPRO distribution started
+
+// Cache for current block number
+let cachedCurrentBlock: number | null = null;
+let currentBlockCacheExpiry: number = 0;
 
 // Cache for block time
 let cachedBlockTime: number | null = null;
 let blockTimeCacheExpiry: number = 0;
+
+/**
+ * Fetch current block number from NEAR RPC
+ * @returns Promise<number> - Current block height
+ */
+export async function fetchCurrentBlockNumber(): Promise<number> {
+  // Check cache first (cache for 1 minute since blocks change frequently)
+  const now = Date.now();
+  if (cachedCurrentBlock !== null && now < currentBlockCacheExpiry) {
+    return cachedCurrentBlock;
+  }
+
+  try {
+    const response = await fetch('https://rpc.mainnet.near.org', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'dontcare',
+        method: 'status',
+        params: []
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const blockHeight = data.result.sync_info.latest_block_height;
+    
+    // Cache the result for 1 minute
+    cachedCurrentBlock = blockHeight;
+    currentBlockCacheExpiry = now + (1 * 60 * 1000);
+    
+    return blockHeight;
+  } catch (error) {
+    console.warn('Failed to fetch current block number:', error);
+    // Fallback: estimate based on time (very rough estimate)
+    const secondsSinceStart = (now / 1000) - (new Date('2025-01-01').getTime() / 1000);
+    const estimatedBlocks = Math.floor(secondsSinceStart / DEFAULT_BLOCK_TIME);
+    return NPRO_START_BLOCK + estimatedBlocks;
+  }
+}
+
+/**
+ * Calculate current epoch based on actual block numbers
+ * @returns Promise<number> - Current epoch number
+ */
+export async function getCurrentEpoch(): Promise<number> {
+  const currentBlock = await fetchCurrentBlockNumber();
+  return blockToEpoch(currentBlock);
+}
+
+/**
+ * Convert block number to epoch number
+ * @param blockNumber The block number
+ * @returns Epoch number
+ */
+export function blockToEpoch(blockNumber: number): number {
+  // Calculate how many complete epochs have passed since start block
+  const blocksSinceStart = Math.max(0, blockNumber - NPRO_START_BLOCK);
+  const epochsSinceStart = Math.floor(blocksSinceStart / BLOCKS_PER_EPOCH);
+  
+  // Add to the start epoch
+  return NPRO_START_EPOCH + epochsSinceStart;
+}
+
+/**
+ * Convert epoch number to block number (start of epoch)
+ * @param epoch The epoch number
+ * @returns Block number at the start of the epoch
+ */
+export function epochToBlock(epoch: number): number {
+  const epochsSinceStart = epoch - NPRO_START_EPOCH;
+  return NPRO_START_BLOCK + (epochsSinceStart * BLOCKS_PER_EPOCH);
+}
 
 /**
  * Fetch current average block time from nearblocks.io
@@ -37,7 +121,7 @@ export async function fetchAverageBlockTime(): Promise<number> {
   }
 
   try {
-    const response = await fetch("https://nearblocks.io/", {
+    const response = await fetch("https://", {
       "headers": {
         "accept": "text/x-component",
         "accept-language": "en-GB,en;q=0.9,es;q=0.8,en-US;q=0.7",
@@ -130,7 +214,7 @@ export function calculateEpochNproReward(
     return new BigNumber(0);
   }
 
-  const nproToDistribute = getNproBondingCurveValue(epoch - START_EPOCH);
+  const nproToDistribute = getNproBondingCurveValue(epoch - NPRO_START_EPOCH + 1);
   const userShare = new BigNumber(userStakedBalance).div(totalStaked);
   
   return userShare.multipliedBy(nproToDistribute).integerValue();
@@ -161,34 +245,65 @@ export function calculateTotalNproRewards(
 }
 
 /**
- * Convert date to epoch number using actual block time
+ * Convert date to epoch number using actual blockchain parameters
  * @param date The target date
- * @param blockTime Average block time in seconds (optional, will use cached or default)
+ * @param blockTime Average block time in seconds
  * @returns Epoch number
  */
 export function dateToEpoch(date: Date, blockTime: number = DEFAULT_BLOCK_TIME): number {
-  const startDate = new Date('2024-01-01T00:00:00Z'); // Adjust this to your system's start date
-  const diffInMs = date.getTime() - startDate.getTime();
-  const diffInSeconds = diffInMs / 1000;
+  // For future dates, estimate the block number
+  const currentTime = Date.now() / 1000;
+  const targetTime = date.getTime() / 1000;
   
-  const epochDuration = getEpochDuration(blockTime);
-  const epochsSinceStart = Math.floor(diffInSeconds / epochDuration);
+  // Calculate time difference
+  const timeDiff = targetTime - currentTime;
+  const blocksDiff = Math.round(timeDiff / blockTime);
   
-  return START_EPOCH + epochsSinceStart;
+  // Estimate current block (this will be more accurate when using fetchCurrentBlockNumber)
+  const estimatedCurrentBlock = NPRO_START_BLOCK + Math.round((currentTime - (new Date('2025-01-01').getTime() / 1000)) / blockTime);
+  const targetBlock = estimatedCurrentBlock + blocksDiff;
+  
+  // Convert block to epoch using our block-to-epoch function
+  return blockToEpoch(targetBlock);
 }
 
 /**
- * Convert epoch number to date using actual block time
+ * Convert date to epoch number using current block data (async version)
+ * @param date The target date
+ * @param blockTime Average block time in seconds
+ * @returns Promise<number> - Epoch number
+ */
+export async function dateToEpochWithCurrentBlock(date: Date, blockTime: number = DEFAULT_BLOCK_TIME): Promise<number> {
+  const currentBlock = await fetchCurrentBlockNumber();
+  const currentTime = Date.now() / 1000;
+  const targetTime = date.getTime() / 1000;
+  
+  // Calculate time difference and estimate block difference
+  const timeDiff = targetTime - currentTime;
+  const blocksDiff = Math.round(timeDiff / blockTime);
+  const targetBlock = currentBlock + blocksDiff;
+  
+  // Convert to epoch
+  return blockToEpoch(targetBlock);
+}
+
+/**
+ * Convert epoch number to date using actual blockchain parameters
  * @param epoch The epoch number
- * @param blockTime Average block time in seconds (optional, will use default)
+ * @param blockTime Average block time in seconds
  * @returns Date
  */
 export function epochToDate(epoch: number, blockTime: number = DEFAULT_BLOCK_TIME): Date {
-  const startDate = new Date('2024-01-01T00:00:00Z'); // Adjust this to your system's start date
-  const epochDuration = getEpochDuration(blockTime);
-  const secondsSinceStart = (epoch - START_EPOCH) * epochDuration;
+  // Get the block number for this epoch
+  const blockNumber = epochToBlock(epoch);
   
-  return new Date(startDate.getTime() + (secondsSinceStart * 1000));
+  // Calculate time difference from start block (this is an approximation)
+  const blocksDiff = blockNumber - NPRO_START_BLOCK;
+  const secondsDiff = blocksDiff * blockTime;
+  
+  // Estimate the date (using a reference date for block 164137435)
+  const startDate = new Date('2025-01-01T00:00:00Z'); // This should be adjusted to actual date of block 164137435
+  return new Date(startDate.getTime() + (secondsDiff * 1000));
 }
 
 /**
