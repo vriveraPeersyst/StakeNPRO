@@ -3,5 +3,15 @@
   "devCommand": "pnpm dev",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "env": {
+    "NEXT_PUBLIC_NETWORK_ID": "mainnet",
+    "NEXT_PUBLIC_POOL_ID": "npro.poolv1.near",
+    "NEXT_PUBLIC_RPC_URL": "https://rpc.mainnet.near.org",
+    "NEXT_PUBLIC_RPC_FALLBACKS": "https://near.lava.build,https://near.blockpi.network/v1/rpc/public,https://rpc.shitzuapes.xyz",
+    "NEXT_PUBLIC_EXPLORER_BASE": "https://nearblocks.io",
+    "NEXT_PUBLIC_SHOW_FIAT": "true",
+    "NEXT_PUBLIC_SHOW_APR": "false",
+    "PEERSYST_API_URL": "https://near-mobile-production.aws.peersyst.tech/api"
+  }
 }
