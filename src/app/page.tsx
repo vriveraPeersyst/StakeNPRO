@@ -13,7 +13,8 @@ import { useEarnedNpro } from '@/hooks/useEarnedNpro'
 import { useTotalStaked } from '@/hooks/useTotalStaked'
 import { useBalances } from '@/hooks/useBalances'
 
-export default function HomePage() {
+// Component that handles URL search params
+function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
@@ -101,13 +102,7 @@ export default function HomePage() {
             {/* Staking Interface Section */}
             <section className="w-full" aria-labelledby="staking-section">
               <h2 id="staking-section" className="sr-only">NEAR Token Staking Interface</h2>
-              <Suspense fallback={
-                <div className="w-full max-w-[760px] mx-auto h-96 flex items-center justify-center">
-                  <p className="text-nm-muted">Loading...</p>
-                </div>
-              }>
-                <StakeCard />
-              </Suspense>
+              <StakeCard />
             </section>
             
             {/* Mobile App Promotion Section */}
@@ -131,5 +126,21 @@ export default function HomePage() {
         userStakedBalance={staked}
       />
     </div>
+  )
+}
+
+// Main page component with Suspense wrapper
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-nm-header flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-nm-muted">Loading...</p>
+        </div>
+      </div>
+    }>
+      <HomePageContent />
+    </Suspense>
   )
 }
