@@ -42,7 +42,10 @@ export default function NPROCalculatorModal({
   };
   
   const [stakeAmount, setStakeAmount] = useState(getDefaultStakeAmount());
-  const [totalPoolAmount, setTotalPoolAmount] = useState(formatNearAmount(currentPoolTotal));
+  const [totalPoolAmount, setTotalPoolAmount] = useState(() => {
+    const currentTotal = formatNearAmount(currentPoolTotal);
+    return currentTotal === '0' ? '' : currentTotal;
+  });
   const [stakingEndDate, setStakingEndDate] = useState<Date>(PRE_STAKING_END_DATE);
   const [calculatedRewards, setCalculatedRewards] = useState<BigNumber | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
@@ -61,7 +64,11 @@ export default function NPROCalculatorModal({
 
   // Update pool total when prop changes
   useEffect(() => {
-    setTotalPoolAmount(formatNearAmount(currentPoolTotal));
+    const formattedTotal = formatNearAmount(currentPoolTotal);
+    // Only update if we have a meaningful value and it's different from current
+    if (formattedTotal !== '0' && formattedTotal !== totalPoolAmount) {
+      setTotalPoolAmount(formattedTotal);
+    }
   }, [currentPoolTotal]);
 
   // Update stake amount when modal opens or user staked balance changes
@@ -260,7 +267,7 @@ export default function NPROCalculatorModal({
                   type="number"
                   value={totalPoolAmount}
                   onChange={(e) => setTotalPoolAmount(e.target.value)}
-                  placeholder="Enter pool total"
+                  placeholder={`Current pool: ${formatNearAmount(currentPoolTotal)} NEAR`}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border border-[#E5E5E5] rounded-[100px] bg-[#FAFAFA] focus:outline-none focus:ring-2 focus:ring-[#5F8AFA] focus:border-transparent focus:bg-white transition-all font-sf text-sm [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none touch-manipulation"
                   min="0"
                   step="0.01"
