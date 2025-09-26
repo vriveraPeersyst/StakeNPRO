@@ -1,6 +1,7 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
 import StakeCard from '@/components/StakeCard'
@@ -13,10 +14,35 @@ import { useTotalStaked } from '@/hooks/useTotalStaked'
 import { useBalances } from '@/hooks/useBalances'
 
 export default function HomePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const { earnedNpro } = useEarnedNpro();
   const { totalStaked } = useTotalStaked();
   const { staked } = useBalances();
+
+  // Initialize modal state from URL parameters
+  useEffect(() => {
+    const calculatorParam = searchParams.get('calculator');
+    setIsCalculatorOpen(calculatorParam === 'open');
+  }, [searchParams]);
+
+  // Handle opening the calculator
+  const handleCalculatorOpen = () => {
+    setIsCalculatorOpen(true);
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set('calculator', 'open');
+    router.push(`?${newParams.toString()}`, { scroll: false });
+  };
+
+  // Handle closing the calculator
+  const handleCalculatorClose = () => {
+    setIsCalculatorOpen(false);
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.delete('calculator');
+    const paramString = newParams.toString();
+    router.push(paramString ? `?${paramString}` : '/', { scroll: false });
+  };
 
   return (
     <div className="min-h-screen bg-nm-header">
@@ -69,7 +95,7 @@ export default function HomePage() {
             {/* NPRO Calculator Section */}
             <section className="w-full" aria-labelledby="calculator-section">
               <h2 id="calculator-section" className="sr-only">NPRO Rewards Calculator</h2>
-              <NPROCalculatorBanner onCalculateClick={() => setIsCalculatorOpen(true)} />
+              <NPROCalculatorBanner onCalculateClick={handleCalculatorOpen} />
             </section>
             
             {/* Staking Interface Section */}
@@ -99,7 +125,7 @@ export default function HomePage() {
       {/* NPRO Calculator Modal */}
       <NPROCalculatorModal
         isOpen={isCalculatorOpen}
-        onClose={() => setIsCalculatorOpen(false)}
+        onClose={handleCalculatorClose}
         currentPoolTotal={totalStaked}
         userEarnedNpro={earnedNpro}
         userStakedBalance={staked}
