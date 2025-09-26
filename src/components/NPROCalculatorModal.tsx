@@ -239,7 +239,7 @@ export default function NPROCalculatorModal({
                   type="number"
                   value={stakeAmount}
                   onChange={(e) => setStakeAmount(e.target.value)}
-                  placeholder="100"
+                  placeholder="1400000"
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border border-[#E5E5E5] rounded-[100px] bg-[#FAFAFA] focus:outline-none focus:ring-2 focus:ring-[#5F8AFA] focus:border-transparent focus:bg-white transition-all font-sf text-sm [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none touch-manipulation"
                   min="0"
                   step="0.01"
