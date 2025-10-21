@@ -1,13 +1,50 @@
 'use client'
 
-import { Suspense } from 'react'
+import { Suspense, useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
 import StakeCard from '@/components/StakeCard'
 import AppBanner from '@/components/AppBanner'
+import NPROCalculatorBanner from '@/components/NPROCalculatorBanner'
+import NPROCalculatorModal from '@/components/NPROCalculatorModal'
 import FooterBar from '@/components/FooterBar'
+import { useEarnedNpro } from '@/hooks/useEarnedNpro'
+import { useTotalStaked } from '@/hooks/useTotalStaked'
+import { useBalances } from '@/hooks/useBalances'
 
-export default function HomePage() {
+// Component that handles URL search params
+function HomePageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+  const { earnedNpro } = useEarnedNpro();
+  const { totalStaked } = useTotalStaked();
+  const { staked } = useBalances();
+
+  // Initialize modal state from URL parameters
+  useEffect(() => {
+    const calculatorParam = searchParams.get('calculator');
+    setIsCalculatorOpen(calculatorParam === 'open');
+  }, [searchParams]);
+
+  // Handle opening the calculator
+  const handleCalculatorOpen = () => {
+    setIsCalculatorOpen(true);
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set('calculator', 'open');
+    router.push(`?${newParams.toString()}`, { scroll: false });
+  };
+
+  // Handle closing the calculator
+  const handleCalculatorClose = () => {
+    setIsCalculatorOpen(false);
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.delete('calculator');
+    const paramString = newParams.toString();
+    router.push(paramString ? `?${paramString}` : '/', { scroll: false });
+  };
+
   return (
     <div className="min-h-screen bg-nm-header">
       {/* Background decorative elements */}
@@ -54,18 +91,18 @@ export default function HomePage() {
             </p>
           </section>
 
-          {/* Main container with StakeCard and AppBanner */}
+          {/* Main container with Calculator, StakeCard and AppBanner */}
           <div className="flex flex-col items-start gap-2 w-full max-w-[760px] mx-auto -mt-2 sm:-mt-4 md:-mt-8 mb-6 sm:mb-8 md:mb-16 px-4">
+            {/* NPRO Calculator Section */}
+            <section className="w-full" aria-labelledby="calculator-section">
+              <h2 id="calculator-section" className="sr-only">NPRO Rewards Calculator</h2>
+              <NPROCalculatorBanner onCalculateClick={handleCalculatorOpen} />
+            </section>
+            
             {/* Staking Interface Section */}
             <section className="w-full" aria-labelledby="staking-section">
               <h2 id="staking-section" className="sr-only">NEAR Token Staking Interface</h2>
-              <Suspense fallback={
-                <div className="w-full max-w-[760px] mx-auto h-96 flex items-center justify-center">
-                  <p className="text-nm-muted">Loading...</p>
-                </div>
-              }>
-                <StakeCard />
-              </Suspense>
+              <StakeCard />
             </section>
             
             {/* Mobile App Promotion Section */}
@@ -79,6 +116,31 @@ export default function HomePage() {
         {/* Footer */}
         <FooterBar />
       </div>
+
+      {/* NPRO Calculator Modal */}
+      <NPROCalculatorModal
+        isOpen={isCalculatorOpen}
+        onClose={handleCalculatorClose}
+        currentPoolTotal={totalStaked}
+        userEarnedNpro={earnedNpro}
+        userStakedBalance={staked}
+      />
     </div>
+  )
+}
+
+// Main page component with Suspense wrapper
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-nm-header flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-nm-muted">Loading...</p>
+        </div>
+      </div>
+    }>
+      <HomePageContent />
+    </Suspense>
   )
 }
