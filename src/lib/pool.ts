@@ -62,12 +62,18 @@ export async function getTotalStakedBalance(): Promise<string> {
 }
 
 // Transaction methods
-export async function depositAndStake(selector: WalletSelector, amountNear: string): Promise<string> {
+export async function depositAndStake(selector: WalletSelector, amountNear: string, coupon?: string): Promise<string> {
   const wallet = await selector.wallet()
   const amountYocto = utils.format.parseNearAmount(amountNear)
   
   if (!amountYocto) {
     throw new Error('Invalid amount')
+  }
+
+  // Create memo with coupon if provided
+  let memo = 'Staked through staking.nearmobile.app'
+  if (coupon) {
+    memo += ` - Coupon: ${coupon}`
   }
 
   const result = await wallet.signAndSendTransaction({
@@ -77,7 +83,7 @@ export async function depositAndStake(selector: WalletSelector, amountNear: stri
         type: 'FunctionCall',
         params: {
           methodName: 'deposit_and_stake',
-          args: {},
+          args: { memo },
           gas: GAS,
           deposit: amountYocto,
         },

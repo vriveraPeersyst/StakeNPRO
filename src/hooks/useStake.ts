@@ -11,9 +11,9 @@ export function useStake() {
   const [txHash, setTxHash] = useState<string | null>(null)
 
   const stakeMutation = useMutation({
-    mutationFn: async (amountNear: string) => {
+    mutationFn: async ({ amountNear, coupon }: { amountNear: string; coupon?: string }) => {
       if (!selector) throw new Error('Wallet not connected')
-      const hash = await depositAndStake(selector, amountNear)
+      const hash = await depositAndStake(selector, amountNear, coupon)
       setTxHash(hash)
       return hash
     },
@@ -29,7 +29,7 @@ export function useStake() {
   })
 
   return {
-    stake: stakeMutation.mutate,
+    stake: (amountNear: string, coupon?: string) => stakeMutation.mutate({ amountNear, coupon }),
     isLoading: stakeMutation.isPending,
     error: stakeMutation.error,
     txHash,
