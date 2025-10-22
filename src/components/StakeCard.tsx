@@ -280,18 +280,39 @@ export default function StakeCard() {
               </button>
             </div>
             {couponValidated && (
-              <div className={`flex items-center gap-2 ${isCouponValid ? 'text-green-600' : 'text-red-600'}`}>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {isCouponValid ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  )}
-                </svg>
-                <span className="font-sf text-sm">
-                  {isCouponValid ? 'Coupon code is valid!' : 'Invalid coupon code'}
-                </span>
-              </div>
+              <>
+                <div className={`flex items-center gap-2 ${isCouponValid ? 'text-green-600' : 'text-red-600'}`}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {isCouponValid ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    )}
+                  </svg>
+                  <span className="font-sf text-sm">
+                    {isCouponValid ? 'Coupon code is valid!' : 'Invalid coupon code'}
+                  </span>
+                </div>
+                {isCouponValid && (
+                  <div className="p-3 bg-[#E5ECFE] border border-[#5F8AFA] rounded-lg">
+                    <div className="mb-3">
+                      <Image 
+                        src="/icons/NEAR Mobile x RHEA Finance.png" 
+                        alt="NEAR Mobile x RHEA Finance Campaign" 
+                        width={1200}
+                        height={300}
+                        className="w-64 sm:w-80 h-auto rounded-lg mx-auto"
+                        quality={100}
+                        priority
+                        unoptimized
+                      />
+                    </div>
+                    <p className="font-sf text-sm text-[#3F4246] leading-5">
+                      Stake to join the <span className="font-semibold">$NPRO pre-staking campaign</span> with code <span className="font-semibold">RHEA</span> — stake NEAR to earn $NPRO and share an extra <span className="font-semibold">25,000 $NPRO</span> in rewards until <span className="font-semibold">Nov 30</span>. The more you stake, the more you earn!
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
