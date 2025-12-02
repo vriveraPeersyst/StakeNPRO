@@ -1,6 +1,5 @@
 import { setupWalletSelector, WalletSelector } from '@near-wallet-selector/core'
 import { setupModal } from '@near-wallet-selector/modal-ui'
-import { setupLedger } from '@near-wallet-selector/ledger'
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet'
 import { setupHereWallet } from '@near-wallet-selector/here-wallet'
 import { setupHotWallet } from '@near-wallet-selector/hot-wallet'
@@ -25,7 +24,6 @@ export const setupWallet = async () => {
           name: "StakeNPRO",
         },
       }) as any,
-      setupLedger() as any,
       setupMyNearWallet() as any,
       setupHotWallet() as any,
       setupMeteorWallet() as any,

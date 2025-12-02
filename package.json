@@ -19,7 +19,6 @@
     "@near-wallet-selector/core": "^9.5.1",
     "@near-wallet-selector/here-wallet": "^9.5.1",
     "@near-wallet-selector/hot-wallet": "^9.5.1",
-    "@near-wallet-selector/ledger": "npm:@peersyst/ws-ledger@^8.9.18",
     "@near-wallet-selector/meteor-wallet": "^9.5.1",
     "@near-wallet-selector/modal-ui": "^9.5.1",
     "@near-wallet-selector/modal-ui-js": "^9.5.1",
