@@ -54,6 +54,62 @@ export function formatUsdAmount(nearAmount: string, nearPrice: number): string {
 export interface NproEarnedData {
   earned: string
   accountId: string
+  rheaBoost?: string
+}
+
+export interface PendingNproData {
+  'pre-launch': string
+  rhea_staking: string
+  accountId: string
+}
+
+export async function getPendingNpro(accountId: string): Promise<PendingNproData | null> {
+  if (!accountId) {
+    return null
+  }
+
+  // Block testnet accounts on client side
+  if (accountId.endsWith('.testnet')) {
+    console.warn('Testnet accounts are not supported for NPRO pending')
+    return {
+      'pre-launch': '0',
+      rhea_staking: '0',
+      accountId: accountId
+    }
+  }
+
+  try {
+    const response = await fetch(`/api/npro/pending/${accountId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(65000),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.warn('Failed to fetch NPRO pending:', errorData.error || `HTTP ${response.status}`)
+      return {
+        'pre-launch': '0',
+        rhea_staking: '0',
+        accountId: accountId
+      }
+    }
+
+    const data = await response.json()
+    return {
+      'pre-launch': String(data['pre-launch'] || '0'),
+      rhea_staking: String(data.rhea_staking || '0'),
+      accountId: data.accountId || accountId
+    }
+  } catch (error) {
+    console.warn('Failed to fetch NPRO pending:', error)
+    return {
+      'pre-launch': '0',
+      rhea_staking: '0',
+      accountId: accountId
+    }
+  }
 }
 
 export async function getNproEarned(accountId: string): Promise<NproEarnedData | null> {

@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useWallet } from './useWallet';
-import { getNproEarned, NproEarnedData } from '@/lib/prices';
+import { getNproEarned, getPendingNpro, NproEarnedData, PendingNproData } from '@/lib/prices';
 
 export function useEarnedNpro() {
   const { accountId, isConnected } = useWallet();
@@ -19,12 +19,27 @@ export function useEarnedNpro() {
     enabled: isConnected && !!accountId,
   });
 
+  // Fetch RHEA boost data
+  const { data: pendingData, isLoading: pendingLoading } = useQuery<PendingNproData | null>({
+    queryKey: ['pendingNpro', accountId],
+    queryFn: () => getPendingNpro(accountId!),
+    staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchInterval: 2 * 60 * 1000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
+    retry: 2,
+    enabled: isConnected && !!accountId,
+  });
+
   // Extract the earned amount from the data
   const earnedNpro = data?.earned || '0';
+  const rheaBoost = pendingData?.rhea_staking || '0';
 
   return {
     earnedNpro,
-    isLoading,
+    rheaBoost,
+    isLoading: isLoading || pendingLoading,
     error: error ? (error as Error).message : null,
     refetch
   };

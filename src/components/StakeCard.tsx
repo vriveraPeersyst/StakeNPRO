@@ -13,7 +13,7 @@ import { useUnstake } from '@/hooks/useUnstake'
 import { useWithdraw } from '@/hooks/useWithdraw'
 import { formatNearAmount, NEAR_BUFFER } from '@/lib/pool'
 import { useQuery } from '@tanstack/react-query'
-import { getNearPrice, getNproEarned, NproEarnedData } from '@/lib/prices'
+import { getNearPrice, getNproEarned, getPendingNpro, NproEarnedData, PendingNproData } from '@/lib/prices'
 import { formatNproAmount } from '@/lib/utils'
 
 type Tab = 'stake' | 'position' | 'why'
@@ -99,6 +99,19 @@ export default function StakeCard() {
     staleTime: 2 * 60 * 1000, // Consider data stale after 2 minutes
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (garbage collection time)
     refetchInterval: 2 * 60 * 1000, // Refetch every 2 minutes (only when component is visible)
+    refetchIntervalInBackground: false, // Don't refetch in background
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    retry: 2, // Retry failed requests up to 2 times
+    enabled: isConnected && !!accountId,
+  })
+
+  // Fetch NPRO RHEA Boost data
+  const { data: pendingNproData, isLoading: pendingNproLoading } = useQuery<PendingNproData | null>({
+    queryKey: ['pendingNpro', accountId],
+    queryFn: () => getPendingNpro(accountId!),
+    staleTime: 2 * 60 * 1000, // Consider data stale after 2 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchInterval: 2 * 60 * 1000, // Refetch every 2 minutes
     refetchIntervalInBackground: false, // Don't refetch in background
     refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2, // Retry failed requests up to 2 times
@@ -586,6 +599,69 @@ export default function StakeCard() {
                 </div>
               </div>
             </div>
+
+            {/* NPRO RHEA Boost Token Row */}
+            <div className="flex flex-row justify-center items-center gap-3 sm:gap-6 w-full min-h-11 bg-white">
+              {/* NPRO Icon */}
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-none">
+                <Image 
+                  src="/icons/npro-token.png" 
+                  alt="NPRO RHEA Boost" 
+                  width={44}
+                  height={44}
+                  className="w-full h-full object-cover"
+                  quality={95}
+                />
+              </div>
+              
+              {/* Token Info */}
+              <div className="flex flex-col justify-center items-start flex-1">
+                <div className="w-full font-sf font-medium text-xs leading-3 sm:leading-4 tracking-[-0.01em] text-[#3F4246]">
+                  NPRO RHEA Boost earned
+                </div>
+                <div className="w-full font-sf font-semibold text-sm leading-4 sm:leading-5 tracking-[-0.01em] text-[#3F4246]">
+                  {pendingNproLoading ? (
+                    'Loading...'
+                  ) : pendingNproData?.rhea_staking !== undefined && pendingNproData.rhea_staking !== '0' ? (
+                    `${formatNproAmount(pendingNproData.rhea_staking)} NPRO`
+                  ) : (
+                    '0 NPRO'
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Total NPRO Earned Row */}
+            {!nproEarnedLoading && !pendingNproLoading && (
+              (nproEarnedData?.earned && nproEarnedData.earned !== 'No data' && nproEarnedData.earned !== '0') ||
+              (pendingNproData?.rhea_staking && pendingNproData.rhea_staking !== '0')
+            ) && (
+              <div className="flex flex-row justify-center items-center gap-3 sm:gap-6 w-full min-h-11 bg-gradient-to-r from-[#5F8AFA]/10 to-[#7B68EE]/10 rounded-lg p-2">
+                {/* NPRO Icon */}
+                <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-none">
+                  <Image 
+                    src="/icons/npro-token.png" 
+                    alt="Total NPRO" 
+                    width={44}
+                    height={44}
+                    className="w-full h-full object-cover"
+                    quality={95}
+                  />
+                </div>
+                
+                {/* Token Info */}
+                <div className="flex flex-col justify-center items-start flex-1">
+                  <div className="w-full font-sf font-medium text-xs leading-3 sm:leading-4 tracking-[-0.01em] text-[#5F8AFA]">
+                    Total NPRO earned
+                  </div>
+                  <div className="w-full font-sf font-bold text-sm leading-4 sm:leading-5 tracking-[-0.01em] text-[#5F8AFA]">
+                    {formatNproAmount(
+                      (BigInt(nproEarnedData?.earned || '0') + BigInt(pendingNproData?.rhea_staking || '0')).toString()
+                    )} NPRO
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

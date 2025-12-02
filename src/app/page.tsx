@@ -18,7 +18,7 @@ function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
-  const { earnedNpro } = useEarnedNpro();
+  const { earnedNpro, rheaBoost } = useEarnedNpro();
   const { totalStaked } = useTotalStaked();
   const { staked } = useBalances();
 
@@ -123,6 +123,7 @@ function HomePageContent() {
         onClose={handleCalculatorClose}
         currentPoolTotal={totalStaked}
         userEarnedNpro={earnedNpro}
+        userRheaBoost={rheaBoost}
         userStakedBalance={staked}
       />
     </div>

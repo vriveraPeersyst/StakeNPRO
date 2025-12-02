@@ -22,6 +22,7 @@ interface NPROCalculatorModalProps {
   onClose: () => void;
   currentPoolTotal?: string; // Current total staked in the pool
   userEarnedNpro?: string;   // User's already earned NPRO (if connected)
+  userRheaBoost?: string;    // User's RHEA boost earned NPRO (if connected)
   userStakedBalance?: string; // User's current staked balance (if connected)
 }
 
@@ -30,6 +31,7 @@ export default function NPROCalculatorModal({
   onClose,
   currentPoolTotal = '0',
   userEarnedNpro = '0',
+  userRheaBoost = '0',
   userStakedBalance = '0'
 }: NPROCalculatorModalProps) {
   const { blockTime } = useBlockTime();
@@ -220,7 +222,7 @@ export default function NPROCalculatorModal({
         {/* Content */}
         <div className="p-3 sm:p-4 space-y-4 sm:space-y-5 overflow-y-auto flex-1 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* User's Already Earned NPRO */}
-          {parseFloat(userEarnedNpro) > 0 && (
+          {(parseFloat(userEarnedNpro) > 0 || parseFloat(userRheaBoost) > 0) && (
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-[16px] sm:rounded-[20px] p-3 sm:p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full flex items-center justify-center">
@@ -228,9 +230,34 @@ export default function NPROCalculatorModal({
                 </div>
                 <span className="font-medium text-green-800 font-sf text-xs sm:text-sm">Already Earned</span>
               </div>
-              <p className="text-lg sm:text-xl font-bold text-green-900 font-sf">
-                {formatNproAmount(userEarnedNpro)} NPRO
-              </p>
+              <div className="space-y-1">
+                {parseFloat(userEarnedNpro) > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs sm:text-sm text-green-700 font-sf">NPRO earned:</span>
+                    <span className="font-bold text-base sm:text-lg text-green-900 font-sf">
+                      {formatNproAmount(userEarnedNpro)} NPRO
+                    </span>
+                  </div>
+                )}
+                {parseFloat(userRheaBoost) > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs sm:text-sm text-green-700 font-sf">NPRO RHEA Boost:</span>
+                    <span className="font-bold text-base sm:text-lg text-green-900 font-sf">
+                      {formatNproAmount(userRheaBoost)} NPRO
+                    </span>
+                  </div>
+                )}
+                {parseFloat(userEarnedNpro) > 0 && parseFloat(userRheaBoost) > 0 && (
+                  <div className="flex justify-between items-center pt-1 border-t border-green-200">
+                    <span className="text-xs sm:text-sm text-green-800 font-sf font-medium">Total earned:</span>
+                    <span className="font-bold text-base sm:text-lg text-green-900 font-sf">
+                      {formatNproAmount(
+                        (BigInt(userEarnedNpro) + BigInt(userRheaBoost)).toString()
+                      )} NPRO
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -418,18 +445,22 @@ export default function NPROCalculatorModal({
                   </span>
                 </div>
                 
-                {parseFloat(userEarnedNpro) > 0 && (
+                {(parseFloat(userEarnedNpro) > 0 || parseFloat(userRheaBoost) > 0) && (
                   <>
                     <div className="flex justify-between items-center bg-green-50 rounded-[12px] sm:rounded-[16px] p-2.5 sm:p-3">
                       <span className="text-xs sm:text-sm text-green-700 font-sf">Already Earned:</span>
                       <span className="font-semibold text-green-600 font-sf text-sm sm:text-base">
-                        {formatNproAmount(userEarnedNpro)} NPRO
+                        {formatNproAmount(
+                          (BigInt(userEarnedNpro || '0') + BigInt(userRheaBoost || '0')).toString()
+                        )} NPRO
                       </span>
                     </div>
                     <div className="flex justify-between items-center bg-gradient-to-r from-[#5F8AFA] to-[#7B68EE] rounded-[12px] sm:rounded-[16px] p-2.5 sm:p-3 text-white">
                       <span className="font-medium font-sf text-sm sm:text-base">Total NPRO:</span>
                       <span className="font-bold text-lg sm:text-xl font-sf">
-                        {formatNproAmount(calculatedRewards.plus(userEarnedNpro).toString())} NPRO
+                        {formatNproAmount(
+                          calculatedRewards.plus(userEarnedNpro || '0').plus(userRheaBoost || '0').toString()
+                        )} NPRO
                       </span>
                     </div>
                   </>
