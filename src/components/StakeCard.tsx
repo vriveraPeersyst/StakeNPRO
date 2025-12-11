@@ -11,10 +11,11 @@ import { useWalletBalance } from '@/hooks/useWalletBalance'
 import { useStake } from '@/hooks/useStake'
 import { useUnstake } from '@/hooks/useUnstake'
 import { useWithdraw } from '@/hooks/useWithdraw'
+import { useClaim } from '@/hooks/useClaim'
 import { formatNearAmount, NEAR_BUFFER } from '@/lib/pool'
 import { useQuery } from '@tanstack/react-query'
 import { getNearPrice, getNproEarned, getPendingNpro, NproEarnedData, PendingNproData } from '@/lib/prices'
-import { formatNproAmount } from '@/lib/utils'
+import { formatNproAmount, formatNproAmount4Decimals } from '@/lib/utils'
 
 type Tab = 'stake' | 'position' | 'why'
 
@@ -62,6 +63,7 @@ export default function StakeCard() {
   const { stake, isLoading: stakeLoading, txHash: stakeTxHash } = useStake()
   const { unstake, unstakeAll, isLoading: unstakeLoading, txHash: unstakeTxHash } = useUnstake()
   const { withdraw, isLoading: withdrawLoading, txHash: withdrawTxHash } = useWithdraw()
+  const { claim, isLoading: claimLoading, txHashes: claimTxHashes, result: claimResult, hasClaimable, claimableBalance, reset: resetClaim } = useClaim()
 
   // Sync tab state with URL changes (browser back/forward)
   useEffect(() => {
@@ -660,6 +662,17 @@ export default function StakeCard() {
                     )} NPRO
                   </div>
                 </div>
+
+                {/* Claim Button - Only show if there's something to claim */}
+                {claimableBalance && claimableBalance !== '0' && (
+                  <button
+                    onClick={() => claim()}
+                    disabled={claimLoading}
+                    className="flex flex-row justify-center items-center px-3 sm:px-4 py-2 gap-1 min-w-[100px] sm:min-w-[140px] h-8 sm:h-10 bg-[#5F8AFA] rounded-[100px] font-sf font-medium text-xs sm:text-sm leading-4 sm:leading-6 text-center tracking-[-0.01em] text-white hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-none"
+                  >
+                    {claimLoading ? 'Claiming...' : `Claim: ${formatNproAmount4Decimals(claimableBalance)} NPRO`}
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -717,6 +730,35 @@ export default function StakeCard() {
             </p>
           </div>
         )}
+
+        {claimTxHashes && claimTxHashes.length > 0 && (
+          <div className="p-3 bg-teal/10 border border-teal/30 rounded-lg w-full">
+            <p className="font-sf text-sm text-teal">
+              Claim transaction successful!{' '}
+              {claimTxHashes.map((hash, index) => (
+                <span key={hash}>
+                  <a
+                    href={`${process.env.NEXT_PUBLIC_EXPLORER_BASE}/txns/${hash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:no-underline"
+                  >
+                    View on explorer
+                  </a>
+                  {index < claimTxHashes.length - 1 && ', '}
+                </span>
+              ))}
+            </p>
+          </div>
+        )}
+
+        {claimResult?.errors && claimResult.errors.length > 0 && (
+          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg w-full">
+            <p className="font-sf text-sm text-orange-800">
+              {claimResult.errors.join('; ')}
+            </p>
+          </div>
+        )}
       </div>
     )
   }
@@ -737,7 +779,7 @@ export default function StakeCard() {
             {/* Chart Image */}
             <div className="w-full lg:w-[357px] h-auto lg:h-[247px] flex-none">
               <img 
-                src="/icons/bondingCurve.png" 
+                src="/icons/bondingcurve.png" 
                 alt="Bonding Curve Chart" 
                 className="w-full h-full object-contain rounded-lg"
                 style={{ 

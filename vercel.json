@@ -12,6 +12,6 @@
     "NEXT_PUBLIC_EXPLORER_BASE": "https://nearblocks.io",
     "NEXT_PUBLIC_SHOW_FIAT": "true",
     "NEXT_PUBLIC_SHOW_APR": "false",
-    "PEERSYST_API_URL": "https://near-mobile-production.aws.peersyst.tech/api"
+    "PEERSYST_API_URL": "https://near-mobile-staging.aws.peersyst.tech/api"
   }
 }

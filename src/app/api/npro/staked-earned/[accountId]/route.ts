@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // Peersyst API endpoint - configurable via environment variable
-const PEERSYST_API_BASE = process.env.PEERSYST_API_URL || 'https://near-mobile-production.aws.peersyst.tech/api'
+const PEERSYST_API_BASE = process.env.PEERSYST_API_URL || 'https://near-mobile-staging.aws.peersyst.tech/api'
 
 export async function GET(
   request: Request,

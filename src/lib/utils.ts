@@ -54,6 +54,30 @@ export const isClipboardSupported = (): boolean => {
 }
 
 /**
+ * Format NPRO amount from yoctoNPRO (24 decimals) to NPRO with exactly 4 decimal places
+ * @param yoctoAmount - The raw amount in yoctoNPRO (24 decimals)
+ * @returns string - Formatted NPRO amount with 4 decimals
+ */
+export const formatNproAmount4Decimals = (yoctoAmount: string | number): string => {
+  if (!yoctoAmount || yoctoAmount === '0') {
+    return '0.0000'
+  }
+
+  try {
+    const amountStr = String(yoctoAmount)
+    
+    // Convert from yoctoNPRO (24 decimals) to NPRO
+    const divisor = Math.pow(10, 24)
+    const nproAmount = parseFloat(amountStr) / divisor
+    
+    return nproAmount.toFixed(4)
+  } catch (error) {
+    console.warn('Error formatting NPRO amount:', error)
+    return '0.0000'
+  }
+}
+
+/**
  * Format NPRO amount from yoctoNPRO (24 decimals) to NPRO
  * @param yoctoAmount - The raw amount in yoctoNPRO (24 decimals)
  * @returns string - Formatted NPRO amount
