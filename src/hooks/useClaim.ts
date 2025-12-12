@@ -5,11 +5,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useWallet } from './useWallet'
 import { view } from '@/lib/near'
 
-// Contract addresses (staging for testing)
-const NPRO_TOKEN_CONTRACT = 'npro-staging-1.near'
-const STAKING_DISTRIBUTION_CONTRACT = 'npro-staking-rewards-staging-9.near'
-const CLAIM_API_URL = 'https://near-mobile-staging.aws.peersyst.tech/api/npro/claim'
-const PENDING_API_URL = 'https://near-mobile-staging.aws.peersyst.tech/api/npro/pending'
+// Contract addresses (production)
+const NPRO_TOKEN_CONTRACT = 'npro.nearmobile.near'
+const STAKING_DISTRIBUTION_CONTRACT = 'distribution.nearmobile.near'
+const CLAIM_API_URL = 'https://near-mobile-production.aws.peersyst.tech/api/npro/claim'
+const PENDING_API_URL = 'https://near-mobile-production.aws.peersyst.tech/api/npro/pending'
 
 const GAS = '30000000000000' // 30 Tgas
 const STORAGE_DEPOSIT = '1250000000000000000000' // 0.00125 NEAR for token registration
