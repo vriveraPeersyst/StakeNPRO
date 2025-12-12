@@ -35,10 +35,12 @@ export function useEarnedNpro() {
   // Extract the earned amount from the data
   const earnedNpro = data?.earned || '0';
   const rheaBoost = pendingData?.rhea_staking || '0';
+  const referralEarned = pendingData?.['pre-launch'] || '0';
 
   return {
     earnedNpro,
     rheaBoost,
+    referralEarned,
     isLoading: isLoading || pendingLoading,
     error: error ? (error as Error).message : null,
     refetch

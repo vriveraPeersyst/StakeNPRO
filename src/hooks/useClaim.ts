@@ -138,6 +138,16 @@ export function useClaim() {
     enabled: isConnected && !!accountId,
   })
 
+  // Query for contract claimable balance (staking rewards from contract)
+  const { data: contractClaimable, isLoading: contractClaimableLoading, refetch: refetchContractClaimable } = useQuery({
+    queryKey: ['contractClaimable', accountId],
+    queryFn: () => getContractClaimableBalance(accountId!),
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 2 * 60 * 1000, // 2 minutes
+    refetchInterval: 60 * 1000, // Refetch every minute
+    enabled: isConnected && !!accountId,
+  })
+
   // Check NPRO registration status
   const { data: isNproRegistered, isLoading: registrationLoading, refetch: refetchRegistration } = useQuery({
     queryKey: ['nproRegistration', accountId],
@@ -264,10 +274,12 @@ export function useClaim() {
     onSuccess: (result) => {
       // Invalidate and refetch related queries
       queryClient.invalidateQueries({ queryKey: ['claimableBalance', accountId] })
+      queryClient.invalidateQueries({ queryKey: ['contractClaimable', accountId] })
       queryClient.invalidateQueries({ queryKey: ['nproEarned', accountId] })
       queryClient.invalidateQueries({ queryKey: ['pendingNpro', accountId] })
       queryClient.invalidateQueries({ queryKey: ['nproRegistration', accountId] })
       refetchClaimable()
+      refetchContractClaimable()
       
       // If no transactions were made (e.g., only API claim was called),
       // refetch again after 5 seconds to get updated balance from API
@@ -294,7 +306,9 @@ export function useClaim() {
     result: claimMutation.data,
     txHashes,
     claimableBalance: claimableBalance || '0',
+    contractClaimable: contractClaimable || '0',
     isClaimableLoading: claimableLoading,
+    isContractClaimableLoading: contractClaimableLoading,
     hasClaimable,
     isNproRegistered: isNproRegistered ?? false,
     isRegistrationLoading: registrationLoading,
