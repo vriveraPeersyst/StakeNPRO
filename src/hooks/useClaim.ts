@@ -8,8 +8,9 @@ import { view } from '@/lib/near'
 // Contract addresses (production)
 const NPRO_TOKEN_CONTRACT = 'npro.nearmobile.near'
 const STAKING_DISTRIBUTION_CONTRACT = 'distribution.nearmobile.near'
-const CLAIM_API_URL = 'https://near-mobile-production.aws.peersyst.tech/api/npro/claim'
-const PENDING_API_URL = 'https://near-mobile-production.aws.peersyst.tech/api/npro/pending'
+// Use local API routes to proxy requests and avoid CORS issues
+const CLAIM_API_URL = '/api/npro/claim'
+const PENDING_API_URL = '/api/npro/pending'
 
 const GAS = '30000000000000' // 30 Tgas
 const STORAGE_DEPOSIT = '1250000000000000000000' // 0.00125 NEAR for token registration
