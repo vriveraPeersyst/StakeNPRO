@@ -164,3 +164,44 @@ export async function getNproEarned(accountId: string): Promise<NproEarnedData |
     }
   }
 }
+
+export async function getNproPrice(): Promise<PriceData | null> {
+  try {
+    const response = await fetch(`${COINGECKO_API}/simple/price?ids=npro&vs_currencies=usd&include_last_updated_at=true`)
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch NPRO price')
+    }
+
+    const data = await response.json()
+    const npro = data.npro
+    
+    if (!npro) {
+      return null
+    }
+
+    return {
+      usd: npro.usd,
+      lastUpdated: npro.last_updated_at * 1000, // Convert to milliseconds
+    }
+  } catch (error) {
+    console.warn('Failed to fetch NPRO price:', error)
+    return null
+  }
+}
+
+export function formatNproUsdAmount(nproAmount: string, nproPrice: number): string {
+  const amountFloat = parseFloat(nproAmount)
+  if (isNaN(amountFloat) || amountFloat === 0) return '$0.00'
+  
+  const usdValue = amountFloat * nproPrice
+  
+  if (usdValue < 0.01) return '<$0.01'
+  
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(usdValue)
+}

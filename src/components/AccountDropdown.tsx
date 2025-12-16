@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { copyToClipboard } from '@/lib/utils'
+import { useNproBalance } from '@/hooks/useNproBalance'
 
 interface AccountDropdownProps {
   accountId: string
@@ -14,6 +15,9 @@ export default function AccountDropdown({ accountId, walletName, onSignOut }: Ac
   const [showToast, setShowToast] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  
+  // Fetch NPRO balance and price
+  const { balance: nproBalance, usdValue, nproPrice, isLoading: isNproLoading } = useNproBalance(accountId)
 
   // Check if mobile on mount and resize
   useEffect(() => {
@@ -137,7 +141,7 @@ export default function AccountDropdown({ accountId, walletName, onSignOut }: Ac
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 top-10 sm:top-12 w-[240px] sm:w-[213px] bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+        <div className="absolute right-0 top-10 sm:top-12 w-[240px] sm:w-[260px] bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
           <div className="px-3 sm:px-4 py-3 border-b border-gray-100">
             <div 
               onClick={handleCopyAddress}
@@ -148,6 +152,41 @@ export default function AccountDropdown({ accountId, walletName, onSignOut }: Ac
             </div>
             <div className="text-xs text-gray-500 mt-1 font-sf">
               {walletName ? `Connected via ${walletName}` : 'Connected Account'}
+            </div>
+          </div>
+          
+          {/* NPRO Balance Section */}
+          <div className="px-3 sm:px-4 py-3 border-b border-gray-100 bg-gray-50">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-1.5">
+                <img 
+                  src="/icons/npro-token.png" 
+                  alt="NPRO" 
+                  className="w-4 h-4 rounded-full"
+                />
+                <span className="text-xs text-gray-500 font-sf">NPRO Balance</span>
+              </div>
+              {nproPrice !== null && (
+                <span className="text-[10px] text-gray-400 font-sf">
+                  1 NPRO = ${nproPrice.toFixed(4)}
+                </span>
+              )}
+            </div>
+            <div className="flex items-baseline gap-2 ml-[22px]">
+              {isNproLoading ? (
+                <div className="animate-pulse bg-gray-200 h-5 w-20 rounded"></div>
+              ) : (
+                <>
+                  <span className="text-sm sm:text-base font-semibold text-gray-900 font-sf">
+                    {nproBalance} NPRO
+                  </span>
+                  {usdValue && (
+                    <span className="text-xs text-gray-500 font-sf">
+                      ≈ {usdValue}
+                    </span>
+                  )}
+                </>
+              )}
             </div>
           </div>
           <div className="py-1">
