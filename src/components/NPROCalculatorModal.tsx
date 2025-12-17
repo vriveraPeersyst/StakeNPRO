@@ -200,7 +200,7 @@ export default function NPROCalculatorModal({
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center">
               <img 
-                src="/icons/npro-token.svg" 
+                src="/icons/npro-token.png" 
                 alt="NPRO" 
                 className="w-7 h-7 sm:w-8 sm:h-8"
               />
@@ -304,7 +304,13 @@ export default function NPROCalculatorModal({
                 </span>
               </div>
               <p className="text-xs text-[#999999] font-sf">
-                Current: {formatNearAmount(currentPoolTotal)} NEAR
+                <span 
+                  onClick={() => setTotalPoolAmount(formatNearAmount(currentPoolTotal))}
+                  className="cursor-pointer hover:text-[#5F8AFA] hover:underline transition-colors"
+                  title="Click to use current pool amount"
+                >
+                  Current: {formatNearAmount(currentPoolTotal)} NEAR
+                </span>
                 {parseFloat(stakeAmount) > 0 && parseFloat(stakeAmount) > parseFloat(formatNearAmount(currentPoolTotal)) && (
                   <span className="text-blue-600 font-medium"> → Adjusted to {totalPoolAmount} NEAR</span>
                 )}
