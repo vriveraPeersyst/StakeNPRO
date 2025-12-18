@@ -1,4 +1,23 @@
 /**
+ * Format a number with thousand separators (comma) and decimal separator (dot)
+ * @param value - The number to format
+ * @param decimals - Maximum number of decimal places (default: 2)
+ * @returns Formatted string with thousand separators
+ */
+export const formatNumber = (value: number | string, decimals: number = 2): string => {
+  if (value === null || value === undefined || value === '') return '0';
+  
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  
+  if (isNaN(num)) return '0';
+  
+  return num.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals
+  });
+};
+
+/**
  * Copy text to clipboard with fallback for environments without clipboard API
  * @param text - The text to copy to clipboard
  * @returns Promise<boolean> - Returns true if successful, false if failed
@@ -93,7 +112,7 @@ export const formatNproAmount = (yoctoAmount: string | number): string => {
     
     // If it's already a small decimal number, return as is
     if (parseFloat(amountStr) < 1000) {
-      return parseFloat(amountStr).toLocaleString(undefined, {
+      return parseFloat(amountStr).toLocaleString('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 6
       })
@@ -103,7 +122,7 @@ export const formatNproAmount = (yoctoAmount: string | number): string => {
     const divisor = Math.pow(10, 24)
     const nproAmount = parseFloat(amountStr) / divisor
     
-    return nproAmount.toLocaleString(undefined, {
+    return nproAmount.toLocaleString('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 6
     })

@@ -87,7 +87,7 @@ export default function AmountInput({
               {isBalanceLoading ? (
                 'Loading...'
               ) : (
-                `${parseFloat(availableBalance).toLocaleString(undefined, { 
+                `${parseFloat(availableBalance).toLocaleString('en-US', { 
                   minimumFractionDigits: 0, 
                   maximumFractionDigits: 6 
                 })} NEAR`

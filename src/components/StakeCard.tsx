@@ -363,7 +363,7 @@ export default function StakeCard() {
                       {formatNearAmount(staked)} NEAR (Staked)
                     </div>
                     <div className="w-full font-sf font-semibold text-xs leading-3 sm:leading-4 tracking-[-0.01em] text-[#999999]">
-                      {priceData && `$${((parseFloat(formatNearAmount(staked)) || 0) * priceData.usd).toFixed(2)}`}
+                      {priceData && `$${((parseFloat(formatNearAmount(staked, false)) || 0) * priceData.usd).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                     </div>
                   </div>
                   

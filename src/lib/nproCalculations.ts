@@ -30,6 +30,14 @@ let currentBlockCacheExpiry: number = 0;
 let cachedBlockTime: number | null = null;
 let blockTimeCacheExpiry: number = 0;
 
+// RPC endpoints for fetching block number (in order of preference)
+const RPC_ENDPOINTS = [
+  'https://near.lava.build',
+  'https://near.blockpi.network/v1/rpc/public',
+  'https://rpc.shitzuapes.xyz',
+  'https://rpc.mainnet.near.org',
+];
+
 /**
  * Fetch current block number from NEAR RPC
  * @returns Promise<number> - Current block height
@@ -41,39 +49,57 @@ export async function fetchCurrentBlockNumber(): Promise<number> {
     return cachedCurrentBlock;
   }
 
-  try {
-    const response = await fetch('https://rpc.mainnet.near.org', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 'dontcare',
-        method: 'status',
-        params: []
-      })
-    });
+  // Try each RPC endpoint until one succeeds
+  let lastError: Error | null = null;
+  
+  for (const rpcUrl of RPC_ENDPOINTS) {
+    try {
+      const response = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'dontcare',
+          method: 'status',
+          params: []
+        })
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const blockHeight = data.result?.sync_info?.latest_block_height;
+      
+      if (!blockHeight) {
+        throw new Error('Invalid response: missing block height');
+      }
+      
+      // Cache the result for 1 minute
+      cachedCurrentBlock = blockHeight;
+      currentBlockCacheExpiry = now + (1 * 60 * 1000);
+      
+      return blockHeight;
+    } catch (error) {
+      console.warn(`Failed to fetch block from ${rpcUrl}:`, error);
+      lastError = error as Error;
+      // Continue to next RPC
     }
-
-    const data = await response.json();
-    const blockHeight = data.result.sync_info.latest_block_height;
-    
-    // Cache the result for 1 minute
-    cachedCurrentBlock = blockHeight;
-    currentBlockCacheExpiry = now + (1 * 60 * 1000);
-    
-    return blockHeight;
-  } catch (error) {
-    console.warn('Failed to fetch current block number:', error);
-    // Fallback: estimate based on time (very rough estimate)
-    const secondsSinceStart = (now / 1000) - (new Date('2025-01-01').getTime() / 1000);
-    const estimatedBlocks = Math.floor(secondsSinceStart / DEFAULT_BLOCK_TIME);
-    return NPRO_START_BLOCK + estimatedBlocks;
   }
+
+  console.error('All RPC endpoints failed to fetch block number:', lastError);
+  
+  // If we have a cached value (even if expired), use it as fallback
+  if (cachedCurrentBlock !== null) {
+    console.warn('Using expired cached block number as fallback');
+    return cachedCurrentBlock;
+  }
+  
+  // Last resort: throw error instead of using broken estimate
+  throw new Error('Failed to fetch current block number from any RPC endpoint');
 }
 
 /**

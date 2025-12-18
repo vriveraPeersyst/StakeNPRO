@@ -33,7 +33,7 @@ function formatYoctoToNpro(yoctoAmount: string): string {
     if (nproAmount === 0) return '0'
     if (nproAmount < 0.0001) return '<0.0001'
     
-    return nproAmount.toLocaleString(undefined, {
+    return nproAmount.toLocaleString('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 4,
     })
