@@ -46,10 +46,22 @@ export default function NPROCalculatorModal({
     gcTime: 30 * 60 * 1000,
   });
   
+  // Helper to format balance for input (no commas, just number with decimals)
+  const formatBalanceForInput = (yoctoAmount: string): string => {
+    if (!yoctoAmount || yoctoAmount === '0') return '0';
+    const NEAR_DECIMALS = 24;
+    const divisor = BigInt('1000000000000000000000000'); // 10^24
+    const amount = BigInt(yoctoAmount);
+    const wholePart = amount / divisor;
+    const fractionalPart = amount % divisor;
+    const fractionalStr = fractionalPart.toString().padStart(24, '0').slice(0, 2);
+    return `${wholePart}.${fractionalStr}`;
+  };
+  
   // Default stake amount based on user's current stake or 100 NEAR
   const getDefaultStakeAmount = () => {
     if (userStakedBalance && userStakedBalance !== '0') {
-      return formatNearAmount(userStakedBalance);
+      return formatBalanceForInput(userStakedBalance);
     }
     return '100';
   };
