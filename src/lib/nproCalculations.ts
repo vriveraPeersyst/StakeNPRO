@@ -367,10 +367,14 @@ export function parseNearAmount(amount: string): string {
 /**
  * Format NEAR amount for display
  * @param amount Amount in yoctoNEAR
- * @returns Formatted NEAR amount
+ * @returns Formatted NEAR amount with thousand separators
  */
 export function formatNearAmount(amount: string): string {
   const NEAR_DECIMALS = 24;
   const decimal = new Decimal(amount).div(new Decimal(10).pow(NEAR_DECIMALS));
-  return decimal.toFixed(2);
+  const numValue = decimal.toNumber();
+  return numValue.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 }
