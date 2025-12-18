@@ -132,7 +132,8 @@ export default function NPROCalculatorModal({
       setEndEpoch(end);
       
       const stakeAmountWei = parseNearAmount(stakeAmount);
-      const currentPoolWei = parseNearAmount(formatNearAmount(currentPoolTotal));
+      // currentPoolTotal is already in yoctoNEAR, no need to format/parse
+      const currentPoolWei = currentPoolTotal;
       
       // Always use current pool total + user's stake amount
       const finalPoolTotal = new BigNumber(currentPoolWei).plus(stakeAmountWei).toString();
