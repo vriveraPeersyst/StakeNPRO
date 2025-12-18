@@ -83,8 +83,8 @@ class RpcManager {
 
   private isDefaultEndpoint(url: string): boolean {
     const defaultEndpoints = [
-      process.env.NEXT_PUBLIC_RPC_URL || 'https://rpc.mainnet.near.org',
-      'https://near.lava.build',
+      process.env.NEXT_PUBLIC_RPC_URL || 'https://near.lava.build',
+      'https://rpc.mainnet.near.org',
       'https://near.blockpi.network/v1/rpc/public',
       'https://rpc.shitzuapes.xyz',
     ]
@@ -92,12 +92,12 @@ class RpcManager {
   }
 
   private initializeEndpoints() {
-    const primaryUrl = process.env.NEXT_PUBLIC_RPC_URL || 'https://rpc.mainnet.near.org'
+    const primaryUrl = process.env.NEXT_PUBLIC_RPC_URL || 'https://near.lava.build'
     const fallbackUrls = (process.env.NEXT_PUBLIC_RPC_FALLBACKS || '').split(',').filter(Boolean)
     
     // Default fallback endpoints if none provided
     const defaultFallbacks = [
-      'https://near.lava.build',
+      'https://rpc.mainnet.near.org',
       'https://near.blockpi.network/v1/rpc/public',
       'https://rpc.shitzuapes.xyz',
     ]
@@ -210,9 +210,13 @@ class RpcManager {
     console.log(`Switched to RPC endpoint: ${this.getCurrentEndpoint()?.url}`)
   }
 
-  private handleFailure(error: any) {
+  private handleFailure(error: any): boolean {
     const currentEndpoint = this.getCurrentEndpoint()
-    if (!currentEndpoint) return
+    if (!currentEndpoint) return false
+
+    // Increment failure count
+    currentEndpoint.failures += 1
+    currentEndpoint.lastFailure = Date.now()
 
     // Enhanced rate limiting error detection
     const isRateLimit = 
@@ -226,48 +230,70 @@ class RpcManager {
       error?.message?.includes('exceeded') ||
       error?.status === 429 ||
       (error?.response && error.response.status === 429) ||
-      // Check for specific NEAR RPC rate limiting responses
       error?.message?.includes('request limit') ||
-      error?.message?.includes('quota exceeded') ||
-      // Check for network timeout which could indicate rate limiting
-      (error?.message?.includes('timeout') && currentEndpoint.failures > 0)
+      error?.message?.includes('quota exceeded')
 
-    // Also consider connection errors as potential rate limiting if we've had recent failures
+    // Connection/network errors - always switch immediately
     const isConnectionError = 
       error?.message?.includes('ECONNRESET') ||
       error?.message?.includes('ECONNREFUSED') ||
+      error?.message?.includes('ETIMEDOUT') ||
+      error?.message?.includes('ENOTFOUND') ||
       error?.message?.includes('network') ||
+      error?.message?.includes('timeout') ||
+      error?.message?.includes('Timeout') ||
+      error?.message?.includes('Failed to fetch') ||
+      error?.message?.includes('fetch failed') ||
       error?.code === 'ECONNRESET' ||
-      error?.code === 'ECONNREFUSED'
+      error?.code === 'ECONNREFUSED' ||
+      error?.code === 'ETIMEDOUT' ||
+      error?.code === 'ENOTFOUND'
 
-    const shouldSwitch = isRateLimit || (isConnectionError && currentEndpoint.failures > 0)
+    // Server errors - switch immediately
+    const isServerError =
+      error?.message?.includes('500') ||
+      error?.message?.includes('502') ||
+      error?.message?.includes('503') ||
+      error?.message?.includes('504') ||
+      error?.status >= 500 ||
+      (error?.response && error.response.status >= 500)
 
-    if (shouldSwitch) {
-      console.warn(`${isRateLimit ? 'Rate limited' : 'Connection error'} on ${currentEndpoint.url}, switching...`)
-      currentEndpoint.failures += 1
-      currentEndpoint.lastFailure = Date.now()
+    // Always switch on rate limit, connection error, or server error
+    const shouldSwitchImmediately = isRateLimit || isConnectionError || isServerError
+
+    if (shouldSwitchImmediately) {
+      const reason = isRateLimit ? 'Rate limited' : isConnectionError ? 'Connection error' : 'Server error'
+      console.warn(`${reason} on ${currentEndpoint.url}, switching immediately...`)
       
-      // Be more aggressive with blacklisting for rate limits
+      // Blacklist immediately for rate limits, or after max failures for other errors
       if (isRateLimit || currentEndpoint.failures >= this.maxFailures) {
         currentEndpoint.isBlacklisted = true
         console.warn(`Blacklisted ${currentEndpoint.url} for ${this.blacklistDuration / 1000}s`)
       }
       
       this.switchToNextEndpoint()
-    } else {
-      // For other errors, still increment failures but don't switch immediately
-      currentEndpoint.failures += 1
-      currentEndpoint.lastFailure = Date.now()
-      
-      if (currentEndpoint.failures >= this.maxFailures) {
-        currentEndpoint.isBlacklisted = true
-        console.warn(`Blacklisted ${currentEndpoint.url} after ${this.maxFailures} failures`)
-        this.switchToNextEndpoint()
-      }
+      return true // Indicate we switched
     }
+    
+    // For other errors, switch after reaching max failures
+    if (currentEndpoint.failures >= this.maxFailures) {
+      currentEndpoint.isBlacklisted = true
+      console.warn(`Blacklisted ${currentEndpoint.url} after ${this.maxFailures} failures`)
+      this.switchToNextEndpoint()
+      return true // Indicate we switched
+    }
+
+    // Any failure should trigger a switch to try another endpoint
+    console.warn(`RPC failure on ${currentEndpoint.url} (attempt ${currentEndpoint.failures}), switching to try another...`)
+    this.switchToNextEndpoint()
+    return true
   }
 
   async makeRequest<T>(requestFn: (provider: providers.JsonRpcProvider) => Promise<T>): Promise<T> {
+    if (!this.provider) {
+      this.setupProvider()
+    }
+    
     if (!this.provider) {
       throw new Error('No RPC provider available')
     }
@@ -279,9 +305,15 @@ class RpcManager {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       attemptCount++
       
+      // Get fresh provider reference for each attempt (in case it was switched)
+      const currentProvider = this.provider
+      if (!currentProvider) {
+        throw new Error('No RPC provider available after switch')
+      }
+      
       try {
         console.log(`RPC request attempt ${attemptCount} using ${this.getCurrentUrl()}`)
-        const result = await requestFn(this.provider)
+        const result = await requestFn(currentProvider)
         
         // If successful, reset failure count for current endpoint
         const currentEndpoint = this.getCurrentEndpoint()
@@ -295,13 +327,13 @@ class RpcManager {
         console.warn(`RPC request failed on attempt ${attemptCount}:`, error)
         lastError = error
         
-        // Handle the failure and potentially switch endpoints
-        this.handleFailure(error)
+        // Handle the failure and switch endpoints
+        const switched = this.handleFailure(error)
         
-        // If we have more attempts and this was a rate limit or connection error, continue with next endpoint
+        // If we switched and have more attempts, continue immediately with shorter delay
         if (attempt < maxRetries - 1) {
-          const waitTime = Math.min(1000 * Math.pow(2, attempt), 5000) // Exponential backoff, max 5s
-          console.log(`Waiting ${waitTime}ms before retry...`)
+          const waitTime = switched ? 500 : Math.min(1000 * Math.pow(2, attempt), 5000)
+          console.log(`Waiting ${waitTime}ms before retry with ${this.getCurrentUrl()}...`)
           await new Promise(resolve => setTimeout(resolve, waitTime))
         }
       }
