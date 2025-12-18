@@ -82,16 +82,28 @@ export default function AmountInput({
       {isConnected && (
         <div className="flex justify-between items-center text-xs sm:text-sm">
           <span className="text-nm-muted">Available balance:</span>
-          <span className="font-sf font-medium text-nm-text">
-            {isBalanceLoading ? (
-              'Loading...'
-            ) : (
-              `${parseFloat(availableBalance).toLocaleString(undefined, { 
-                minimumFractionDigits: 0, 
-                maximumFractionDigits: 6 
-              })} NEAR`
+          <div className="flex flex-col items-end">
+            <span className="font-sf font-medium text-nm-text">
+              {isBalanceLoading ? (
+                'Loading...'
+              ) : (
+                `${parseFloat(availableBalance).toLocaleString(undefined, { 
+                  minimumFractionDigits: 0, 
+                  maximumFractionDigits: 6 
+                })} NEAR`
+              )}
+            </span>
+            {!isBalanceLoading && nearPrice && (
+              <span className="font-sf text-xs text-nm-muted">
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(parseFloat(availableBalance) * nearPrice)}
+              </span>
             )}
-          </span>
+          </div>
         </div>
       )}
 

@@ -205,3 +205,44 @@ export function formatNproUsdAmount(nproAmount: string, nproPrice: number): stri
     maximumFractionDigits: 2,
   }).format(usdValue)
 }
+
+export interface NproComparisonData {
+  nproApyPercent: number
+  nearApyPercent: number
+  summary: string
+  totalStakedNear: number
+  nproPriceUsd: number
+}
+
+export async function getNproComparison(): Promise<NproComparisonData | null> {
+  try {
+    // Use our Next.js API route to avoid CORS issues
+    const response = await fetch('/api/npro/compare', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(10000), // 10 second timeout
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch NPRO comparison data')
+    }
+
+    const result = await response.json()
+    
+    if (!result.success) {
+      return null
+    }
+
+    return {
+      nproApyPercent: result.nproApyPercent ?? 0,
+      nearApyPercent: result.nearApyPercent ?? 0,
+      summary: result.summary ?? '',
+      totalStakedNear: result.totalStakedNear ?? 0,
+      nproPriceUsd: result.nproPriceUsd ?? 0,
+    }
+  } catch (error) {
+    console.warn('Failed to fetch NPRO comparison:', error)
+    return null
+  }
+}

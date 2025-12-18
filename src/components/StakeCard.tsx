@@ -14,7 +14,7 @@ import { useWithdraw } from '@/hooks/useWithdraw'
 import { useClaim } from '@/hooks/useClaim'
 import { formatNearAmount, NEAR_BUFFER } from '@/lib/pool'
 import { useQuery } from '@tanstack/react-query'
-import { getNearPrice, getPendingNpro, PendingNproData } from '@/lib/prices'
+import { getNearPrice, getPendingNpro, PendingNproData, getNproComparison } from '@/lib/prices'
 import { formatNproAmount, formatNproAmount4Decimals } from '@/lib/utils'
 
 type Tab = 'stake' | 'position' | 'why'
@@ -104,6 +104,17 @@ export default function StakeCard() {
     enabled: isConnected && !!accountId,
   })
 
+  // Fetch NPRO APY comparison data (always, regardless of connection)
+  const { data: nproComparisonData, isLoading: nproComparisonLoading } = useQuery({
+    queryKey: ['nproComparison'],
+    queryFn: getNproComparison,
+    staleTime: 5 * 60 * 1000, // Consider data stale after 5 minutes
+    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+    refetchIntervalInBackground: false,
+    retry: 2,
+  })
+
   const handleMaxClick = () => {
     if (!isConnected) return
     const maxAmount = getMaxAmount()
@@ -188,9 +199,20 @@ export default function StakeCard() {
       return (
         <div className="space-y-4 sm:space-y-6">
           <div>
-            <label className="block text-sm sm:text-base leading-5 sm:leading-6 font-semibold text-nm-text mb-3 sm:mb-4">
-              Amount
-            </label>
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <label className="block text-sm sm:text-base leading-5 sm:leading-6 font-semibold text-nm-text">
+                Amount
+              </label>
+              {nproComparisonLoading ? (
+                <span className="font-sf text-sm sm:text-base font-medium text-[#999999]">
+                  Loading APY...
+                </span>
+              ) : nproComparisonData ? (
+                <span className="font-sf text-sm sm:text-base font-medium bg-gradient-to-r from-blue-400 via-purple-500 via-pink-500 to-blue-400 bg-clip-text text-transparent animate-[gradient_3s_ease-in-out_infinite] bg-[length:300%_100%]">
+                  NPRO APY: {nproComparisonData.nproApyPercent.toFixed(2)}%
+                </span>
+              ) : null}
+            </div>
             <AmountInput
               value={stakeAmount}
               onChange={handleAmountChange}
@@ -216,9 +238,20 @@ export default function StakeCard() {
     return (
       <div className="space-y-4 sm:space-y-6">
         <div>
-          <label className="block font-sf text-sm sm:text-base leading-5 sm:leading-6 font-semibold text-nm-text mb-3 sm:mb-4">
-            Amount
-          </label>
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <label className="block font-sf text-sm sm:text-base leading-5 sm:leading-6 font-semibold text-nm-text">
+              Amount
+            </label>
+            {nproComparisonLoading ? (
+              <span className="font-sf text-sm sm:text-base font-medium text-[#999999]">
+                Loading APY...
+              </span>
+            ) : nproComparisonData ? (
+              <span className="font-sf text-sm sm:text-base font-medium bg-gradient-to-r from-blue-400 via-purple-500 via-pink-500 to-blue-400 bg-clip-text text-transparent animate-[gradient_3s_ease-in-out_infinite] bg-[length:300%_100%]">
+                NPRO APY: {nproComparisonData.nproApyPercent.toFixed(2)}%
+              </span>
+            ) : null}
+          </div>
           <AmountInput
             value={stakeAmount}
             onChange={handleAmountChange}
