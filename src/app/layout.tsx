@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/StakeNPRO.png',
+        url: '/icons/StakeNPRO-og.png',
         width: 1200,
         height: 630,
         alt: 'NPRO Stake - Official NEAR Mobile Validator for Staking NEAR Tokens',
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     title: 'NPRO Stake - Stake NEAR & Earn NPRO Tokens',
     description: 'Stake NEAR Protocol tokens with the official NEAR Mobile validator and earn NPRO rewards. Secure, transparent, and high-yield staking.',
     images: {
-      url: '/StakeNPRO.png',
+      url: '/icons/StakeNPRO-og.png',
       alt: 'NPRO Stake - Official NEAR Mobile Validator',
     },
   },
