@@ -71,10 +71,14 @@ export const metadata: Metadata = {
     creator: '@NEARMobile',
     title: 'NPRO Stake - Stake NEAR & Earn NPRO Tokens',
     description: 'Stake NEAR Protocol tokens with the official NEAR Mobile validator and earn NPRO rewards. Secure, transparent, and high-yield staking.',
-    images: {
-      url: '/icons/StakeNPRO-og.png',
-      alt: 'NPRO Stake - Official NEAR Mobile Validator',
-    },
+    images: [
+      {
+        url: '/icons/StakeNPRO-og.png',
+        width: 1200,
+        height: 630,
+        alt: 'NPRO Stake - Official NEAR Mobile Validator',
+      },
+    ],
   },
   category: 'technology',
 }
