@@ -6,14 +6,14 @@ import { useWallet } from './useWallet'
 import { unstake, unstakeAll } from '@/lib/pool'
 
 export function useUnstake() {
-  const { selector, accountId } = useWallet()
+  const { connector, accountId } = useWallet()
   const queryClient = useQueryClient()
   const [txHash, setTxHash] = useState<string | null>(null)
 
   const unstakeMutation = useMutation({
     mutationFn: async (amountNear: string) => {
-      if (!selector) throw new Error('Wallet not connected')
-      const hash = await unstake(selector, amountNear)
+      if (!connector) throw new Error('Wallet not connected')
+      const hash = await unstake(connector, amountNear)
       setTxHash(hash)
       return hash
     },
@@ -31,8 +31,8 @@ export function useUnstake() {
 
   const unstakeAllMutation = useMutation({
     mutationFn: async () => {
-      if (!selector || !accountId) throw new Error('Wallet not connected')
-      const hash = await unstakeAll(selector, accountId)
+      if (!connector || !accountId) throw new Error('Wallet not connected')
+      const hash = await unstakeAll(connector, accountId)
       setTxHash(hash)
       return hash
     },

@@ -6,14 +6,14 @@ import { useWallet } from './useWallet'
 import { withdrawAll } from '@/lib/pool'
 
 export function useWithdraw() {
-  const { selector, accountId } = useWallet()
+  const { connector, accountId } = useWallet()
   const queryClient = useQueryClient()
   const [txHash, setTxHash] = useState<string | null>(null)
 
   const withdrawMutation = useMutation({
     mutationFn: async () => {
-      if (!selector) throw new Error('Wallet not connected')
-      const hash = await withdrawAll(selector)
+      if (!connector) throw new Error('Wallet not connected')
+      const hash = await withdrawAll(connector)
       setTxHash(hash)
       return hash
     },

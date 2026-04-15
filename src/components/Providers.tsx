@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 import { RpcStatus } from './RpcStatus'
+import { WalletProvider } from '@/hooks/useWallet'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -17,11 +18,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      {/* Desktop RPC Status - hidden on mobile since it's in the navbar burger menu */}
-      <div className="hidden lg:block">
-        <RpcStatus isMobile={false} />
-      </div>
+      <WalletProvider>
+        {children}
+        {/* Desktop RPC Status - hidden on mobile since it's in the navbar burger menu */}
+        <div className="hidden lg:block">
+          <RpcStatus isMobile={false} />
+        </div>
+      </WalletProvider>
     </QueryClientProvider>
   )
 }

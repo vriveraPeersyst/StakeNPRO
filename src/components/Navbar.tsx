@@ -39,6 +39,14 @@ export default function Navbar() {
             </span>
           </div>
           <a
+            href="https://swap.nearmobile.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-sf font-medium text-sm xl:text-base leading-5 xl:leading-6 tracking-[-0.01em] text-nm-muted cursor-pointer hover:text-nm-text transition-colors whitespace-nowrap"
+          >
+            Swap
+          </a>
+          <a
             href="https://discord.com/invite/y3dsWCJFcM"
             target="_blank"
             rel="noopener noreferrer"
@@ -111,6 +119,15 @@ export default function Navbar() {
                   NPRO
                 </span>
               </div>
+              <a
+                href="https://swap.nearmobile.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-sf font-medium text-base leading-6 tracking-[-0.01em] text-nm-muted hover:text-nm-text transition-colors py-2 text-center"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Swap
+              </a>
               <a
                 href="https://discord.com/invite/y3dsWCJFcM"
                 target="_blank"

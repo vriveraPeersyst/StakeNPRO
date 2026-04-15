@@ -124,7 +124,7 @@ async function claimCampaigns(accountId: string): Promise<{ success: boolean; da
 }
 
 export function useClaim() {
-  const { selector, accountId, isConnected } = useWallet()
+  const { connector, accountId, isConnected } = useWallet()
   const queryClient = useQueryClient()
   const [isRegistering, setIsRegistering] = useState(false)
   const [txHashes, setTxHashes] = useState<string[]>([])
@@ -160,11 +160,11 @@ export function useClaim() {
 
   // Register NPRO token
   const registerNpro = useCallback(async (): Promise<string | null> => {
-    if (!selector || !accountId) throw new Error('Wallet not connected')
+    if (!connector || !accountId) throw new Error('Wallet not connected')
     
     setIsRegistering(true)
     try {
-      const wallet = await selector.wallet()
+      const wallet = await connector.wallet()
       
       const result = await wallet.signAndSendTransaction({
         receiverId: NPRO_TOKEN_CONTRACT,
@@ -186,14 +186,14 @@ export function useClaim() {
     } finally {
       setIsRegistering(false)
     }
-  }, [selector, accountId, refetchRegistration])
+  }, [connector, accountId, refetchRegistration])
 
   // Claim from staking distribution contract
   const claimStaking = useCallback(async (amount: string): Promise<string | null> => {
-    if (!selector || !accountId) throw new Error('Wallet not connected')
+    if (!connector || !accountId) throw new Error('Wallet not connected')
     if (amount === '0' || !amount) throw new Error('No claimable balance')
     
-    const wallet = await selector.wallet()
+    const wallet = await connector.wallet()
     
     const result = await wallet.signAndSendTransaction({
       receiverId: STAKING_DISTRIBUTION_CONTRACT,
@@ -211,12 +211,12 @@ export function useClaim() {
     })
     
     return result?.transaction?.hash || null
-  }, [selector, accountId])
+  }, [connector, accountId])
 
   // Main claim mutation that handles all steps
   const claimMutation = useMutation({
     mutationFn: async (): Promise<ClaimResult> => {
-      if (!selector || !accountId) throw new Error('Wallet not connected')
+      if (!connector || !accountId) throw new Error('Wallet not connected')
       
       const result: ClaimResult = {
         success: true,

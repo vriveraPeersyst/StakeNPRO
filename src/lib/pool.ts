@@ -1,4 +1,4 @@
-import { WalletSelector } from '@near-wallet-selector/core'
+import type { NearConnector as NearConnectorType } from '@hot-labs/near-connect'
 import { view } from './near'
 import { utils } from 'near-api-js'
 
@@ -62,8 +62,8 @@ export async function getTotalStakedBalance(): Promise<string> {
 }
 
 // Transaction methods
-export async function depositAndStake(selector: WalletSelector, amountNear: string): Promise<string> {
-  const wallet = await selector.wallet()
+export async function depositAndStake(connector: NearConnectorType, amountNear: string): Promise<string> {
+  const wallet = await connector.wallet()
   const amountYocto = utils.format.parseNearAmount(amountNear)
   
   if (!amountYocto) {
@@ -88,8 +88,8 @@ export async function depositAndStake(selector: WalletSelector, amountNear: stri
   return result?.transaction?.hash || ''
 }
 
-export async function unstake(selector: WalletSelector, amountNear: string): Promise<string> {
-  const wallet = await selector.wallet()
+export async function unstake(connector: NearConnectorType, amountNear: string): Promise<string> {
+  const wallet = await connector.wallet()
   
   const args = { amount: utils.format.parseNearAmount(amountNear) }
 
@@ -111,8 +111,8 @@ export async function unstake(selector: WalletSelector, amountNear: string): Pro
   return result?.transaction?.hash || ''
 }
 
-export async function unstakeAll(selector: WalletSelector, accountId: string): Promise<string> {
-  const wallet = await selector.wallet()
+export async function unstakeAll(connector: NearConnectorType, accountId: string): Promise<string> {
+  const wallet = await connector.wallet()
   
   // Get the current staked balance in yoctoNEAR
   const stakedBalanceYocto = await getAccountStakedBalance(accountId)
@@ -137,8 +137,8 @@ export async function unstakeAll(selector: WalletSelector, accountId: string): P
   return result?.transaction?.hash || ''
 }
 
-export async function withdrawAll(selector: WalletSelector): Promise<string> {
-  const wallet = await selector.wallet()
+export async function withdrawAll(connector: NearConnectorType): Promise<string> {
+  const wallet = await connector.wallet()
 
   const result = await wallet.signAndSendTransaction({
     receiverId: POOL_ID,

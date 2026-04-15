@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import wallet selector styles */
-@import '@near-wallet-selector/modal-ui/styles.css';
-
 @font-face {
   font-family: 'SF Pro';
   font-style: normal;

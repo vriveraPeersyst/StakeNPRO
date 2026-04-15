@@ -1,4 +1,4 @@
-import { setupWallet } from '@/lib/wallet'
+import { getConnector } from '@/lib/wallet'
 import { providers, utils } from 'near-api-js'
 import { rpcManager } from './rpcManager'
 
@@ -42,11 +42,11 @@ export const getNetworkConfig = () => ({
   explorerUrl: process.env.NEXT_PUBLIC_EXPLORER_BASE || 'https://nearblocks.io',
 })
 
-// Initialize wallet selector on client side
+// Initialize wallet on client side
 export const initializeNear = async () => {
   if (typeof window === 'undefined') return null
   
-  return setupWallet()
+  return getConnector()
 }
 
 // Get account NEAR balance with automatic failover

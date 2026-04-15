@@ -6,14 +6,14 @@ import { useWallet } from './useWallet'
 import { depositAndStake } from '@/lib/pool'
 
 export function useStake() {
-  const { selector, accountId } = useWallet()
+  const { connector, accountId } = useWallet()
   const queryClient = useQueryClient()
   const [txHash, setTxHash] = useState<string | null>(null)
 
   const stakeMutation = useMutation({
     mutationFn: async (amountNear: string) => {
-      if (!selector) throw new Error('Wallet not connected')
-      const hash = await depositAndStake(selector, amountNear)
+      if (!connector) throw new Error('Wallet not connected')
+      const hash = await depositAndStake(connector, amountNear)
       setTxHash(hash)
       return hash
     },
