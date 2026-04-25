@@ -372,11 +372,11 @@ export default function NPROCalculatorModal({
           <div className="bg-gradient-to-br from-[#F8F9FA] to-[#E5ECFE] rounded-[16px] sm:rounded-[20px] p-3 sm:p-4 border border-[#E5E5E5]">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-[#3F4246] font-sf text-sm sm:text-base">Estimated Rewards</h3>
-              {comparisonData?.nproApyPercent && (
+              {comparisonData?.nproApyPercent ? (
                 <span className="font-sf text-sm sm:text-base font-medium bg-gradient-to-r from-blue-400 via-purple-500 via-pink-500 to-blue-400 bg-clip-text text-transparent animate-[gradient_3s_ease-in-out_infinite] bg-[length:300%_100%]">
                   APY: {comparisonData.nproApyPercent.toFixed(2)} %
                 </span>
-              )}
+              ) : null}
             </div>
             
             {isCalculating ? (

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-const NPRO_COMPARISON_API = 'https://nprostake-vs-nearstake-api-kappa.vercel.app/api/compare'
+const NPRO_COMPARISON_API = 'https://nprostake-vs-nearstake-api.vercel.app/api/compare'
 
 export async function GET() {
   try {
