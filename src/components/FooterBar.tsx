@@ -21,7 +21,7 @@ export default function FooterBar() {
 
         {/* Right - Links */}
         <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 text-xs sm:text-sm text-nm-muted order-1 sm:order-2">
-          <span className="text-center">© 2025 Peersyst Technology</span>
+          <span className="text-center">© 2026 Peersyst Technology</span>
           <div className="flex items-center gap-4 sm:gap-6">
             <a href="/terms" className="hover:text-nm-text transition-colors">
               Terms
