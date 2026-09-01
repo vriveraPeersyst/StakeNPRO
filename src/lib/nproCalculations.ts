@@ -1,5 +1,6 @@
 import { Decimal } from 'decimal.js';
 import BigNumber from 'bignumber.js';
+import { getConfiguredRpcEndpoints } from './rpcEndpoints';
 
 // NPRO bonding curve constants
 export const BONDING_CURVE_CONFIG = {
@@ -31,12 +32,7 @@ let cachedBlockTime: number | null = null;
 let blockTimeCacheExpiry: number = 0;
 
 // RPC endpoints for fetching block number (in order of preference)
-const RPC_ENDPOINTS = [
-  'https://near.lava.build',
-  'https://near.blockpi.network/v1/rpc/public',
-  'https://rpc.shitzuapes.xyz',
-  'https://rpc.mainnet.near.org',
-];
+const RPC_ENDPOINTS = getConfiguredRpcEndpoints();
 
 /**
  * Fetch current block number from NEAR RPC

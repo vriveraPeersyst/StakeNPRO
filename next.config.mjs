@@ -3,8 +3,8 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_NETWORK_ID: process.env.NEXT_PUBLIC_NETWORK_ID || 'mainnet',
     NEXT_PUBLIC_POOL_ID: process.env.NEXT_PUBLIC_POOL_ID || 'npro.poolv1.near',
-    NEXT_PUBLIC_RPC_URL: process.env.NEXT_PUBLIC_RPC_URL || 'https://rpc.mainnet.near.org',
-    NEXT_PUBLIC_RPC_FALLBACKS: process.env.NEXT_PUBLIC_RPC_FALLBACKS || 'https://near.lava.build,https://near.blockpi.network/v1/rpc/public',
+    NEXT_PUBLIC_RPC_URL: process.env.NEXT_PUBLIC_RPC_URL || 'https://free.rpc.fastnear.com',
+    NEXT_PUBLIC_RPC_FALLBACKS: process.env.NEXT_PUBLIC_RPC_FALLBACKS || 'https://near.lava.build,https://near.blockpi.network/v1/rpc/public,https://1rpc.io/near,https://near.drpc.org,https://endpoints.omniatech.io/v1/near/mainnet/public,https://nearrpc.aurora.dev,https://rpc.shitzuapes.xyz,https://rpc.mainnet.near.org',
     NEXT_PUBLIC_EXPLORER_BASE: process.env.NEXT_PUBLIC_EXPLORER_BASE || 'https://nearblocks.io',
     NEXT_PUBLIC_SHOW_FIAT: process.env.NEXT_PUBLIC_SHOW_FIAT || 'true',
     NEXT_PUBLIC_SHOW_APR: process.env.NEXT_PUBLIC_SHOW_APR || 'false',

@@ -1,4 +1,5 @@
 import { providers } from 'near-api-js'
+import { getConfiguredRpcEndpoints } from './rpcEndpoints'
 
 interface RpcEndpoint {
   url: string
@@ -16,9 +17,12 @@ class RpcManager {
   private currentIndex: number = 0
   private readonly maxFailures = 3
   private readonly blacklistDuration = 5 * 60 * 1000 // 5 minutes
+  private readonly requestTimeout = 10 * 1000 // 10s per RPC request
   private provider: providers.JsonRpcProvider | null = null
   private listeners: RpcStatusChangeListener[] = []
-  private readonly STORAGE_KEY = 'stakeNPRO_rpc_config'
+  // Bumped to v2 so users pinned to an endpoint from the old, shorter default
+  // list get the refreshed defaults instead of a stale (often dead) primary.
+  private readonly STORAGE_KEY = 'stakeNPRO_rpc_config_v2'
 
   constructor() {
     this.initializeEndpoints()
@@ -82,49 +86,23 @@ class RpcManager {
   }
 
   private isDefaultEndpoint(url: string): boolean {
-    const defaultEndpoints = [
-      process.env.NEXT_PUBLIC_RPC_URL || 'https://near.lava.build',
-      'https://rpc.mainnet.near.org',
-      'https://near.blockpi.network/v1/rpc/public',
-      'https://rpc.shitzuapes.xyz',
-    ]
-    return defaultEndpoints.includes(url)
+    return getConfiguredRpcEndpoints().includes(url)
   }
 
   private initializeEndpoints() {
-    const primaryUrl = process.env.NEXT_PUBLIC_RPC_URL || 'https://near.lava.build'
-    const fallbackUrls = (process.env.NEXT_PUBLIC_RPC_FALLBACKS || '').split(',').filter(Boolean)
-    
-    // Default fallback endpoints if none provided
-    const defaultFallbacks = [
-      'https://rpc.mainnet.near.org',
-      'https://near.blockpi.network/v1/rpc/public',
-      'https://rpc.shitzuapes.xyz',
-    ]
-    
-    // Add primary endpoint
-    this.endpoints.push({
-      url: primaryUrl,
-      failures: 0,
-      isBlacklisted: false
-    })
-
-    // Add custom fallback endpoints if provided, otherwise use defaults
-    const fallbacks = fallbackUrls.length > 0 ? fallbackUrls : defaultFallbacks
-    
-    fallbacks.forEach(url => {
-      const cleanUrl = url.trim()
-      // Avoid duplicates
-      if (!this.endpoints.some(ep => ep.url === cleanUrl)) {
+    // Primary + env fallbacks first, then every known public endpoint as a
+    // backstop, de-duplicated and in preference order.
+    getConfiguredRpcEndpoints().forEach(url => {
+      if (!this.endpoints.some(ep => ep.url === url)) {
         this.endpoints.push({
-          url: cleanUrl,
+          url,
           failures: 0,
           isBlacklisted: false
         })
       }
     })
 
-    console.log(`Initialized RPC manager with ${this.endpoints.length} endpoints:`, 
+    console.log(`Initialized RPC manager with ${this.endpoints.length} endpoints:`,
       this.endpoints.map(ep => ep.url))
   }
 
@@ -163,25 +141,31 @@ class RpcManager {
     }
   }
 
+  // `currentIndex` always indexes `this.endpoints` (not the filtered list), so
+  // blacklisting an endpoint can never make the index point at a different
+  // endpoint than the one the caller thinks is current.
   private getCurrentEndpoint(): RpcEndpoint | null {
     // Clear blacklisted endpoints if blacklist duration has passed
     this.clearExpiredBlacklists()
-    
-    // Find next available endpoint
-    const availableEndpoints = this.endpoints.filter(ep => !ep.isBlacklisted)
-    
-    if (availableEndpoints.length === 0) {
-      console.warn('All RPC endpoints are blacklisted, resetting...')
-      this.resetAllEndpoints()
-      return this.endpoints[0]
-    }
 
-    // Cycle through available endpoints
-    if (this.currentIndex >= availableEndpoints.length) {
+    if (this.endpoints.length === 0) return null
+
+    if (this.currentIndex < 0 || this.currentIndex >= this.endpoints.length) {
       this.currentIndex = 0
     }
 
-    return availableEndpoints[this.currentIndex]
+    // Prefer the current endpoint, otherwise scan forward for the next healthy one
+    for (let offset = 0; offset < this.endpoints.length; offset++) {
+      const index = (this.currentIndex + offset) % this.endpoints.length
+      if (!this.endpoints[index].isBlacklisted) {
+        this.currentIndex = index
+        return this.endpoints[index]
+      }
+    }
+
+    console.warn('All RPC endpoints are blacklisted, resetting...')
+    this.resetAllEndpoints()
+    return this.endpoints[this.currentIndex]
   }
 
   private clearExpiredBlacklists() {
@@ -289,6 +273,19 @@ class RpcManager {
     return true
   }
 
+  // near-api-js' JsonRpcProvider has no request timeout, so a hung endpoint
+  // would stall every query instead of failing over.
+  private withTimeout<T>(promise: Promise<T>): Promise<T> {
+    let timer: ReturnType<typeof setTimeout>
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error(`RPC request timeout after ${this.requestTimeout}ms`)),
+        this.requestTimeout
+      )
+    })
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timer)) as Promise<T>
+  }
+
   async makeRequest<T>(requestFn: (provider: providers.JsonRpcProvider) => Promise<T>): Promise<T> {
     if (!this.provider) {
       this.setupProvider()
@@ -313,7 +310,7 @@ class RpcManager {
       
       try {
         console.log(`RPC request attempt ${attemptCount} using ${this.getCurrentUrl()}`)
-        const result = await requestFn(currentProvider)
+        const result = await this.withTimeout(requestFn(currentProvider))
         
         // If successful, reset failure count for current endpoint
         const currentEndpoint = this.getCurrentEndpoint()
@@ -460,11 +457,7 @@ class RpcManager {
     this.endpoints[endpointIndex].failures = 0
     this.endpoints[endpointIndex].lastFailure = undefined
 
-    // Set the current index to the selected endpoint in the available endpoints array
-    // We need to recalculate available endpoints after clearing blacklist
-    const availableEndpoints = this.endpoints.filter(ep => !ep.isBlacklisted)
-    const availableIndex = availableEndpoints.findIndex(ep => ep.url === url)
-    this.currentIndex = availableIndex >= 0 ? availableIndex : 0
+    this.currentIndex = endpointIndex
 
     // Update the provider
     this.setupProvider()
