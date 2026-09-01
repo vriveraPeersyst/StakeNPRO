@@ -3,7 +3,20 @@ import { view } from './near'
 import { utils } from 'near-api-js'
 
 const POOL_ID = process.env.NEXT_PUBLIC_POOL_ID || 'npro.poolv1.near'
-const GAS = '30000000000000' // 30 Tgas
+// Gas attached to staking-pool calls.
+//
+// 30 Tgas is NOT enough. Every pool method starts with a `ping`, and the first
+// call of a new epoch is the one that distributes the epoch rewards. That path
+// also triggers `internal_restake()`, which schedules a `stake` promise plus an
+// `on_stake_action` callback: 20 Tgas attached to the callback and ~9.4 Tgas of
+// data-receipt cost for the `.then` dependency, on top of the ~4 Tgas the call
+// itself burns and the receipt spawned by `withdraw_all`/`unstake`.
+//
+// That pushes a plain 30 Tgas call over its budget and it fails with
+// "Exceeded the prepaid gas" — intermittently, because only the first caller in
+// each epoch pays the restake cost. Unused gas is refunded, so attaching the
+// 300 Tgas maximum costs nothing.
+const GAS = '300000000000000' // 300 Tgas
 
 // Pool view methods
 export async function getAccountStakedBalance(accountId: string): Promise<string> {

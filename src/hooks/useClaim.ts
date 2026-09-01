@@ -12,7 +12,10 @@ const STAKING_DISTRIBUTION_CONTRACT = 'distribution.nearmobile.near'
 const CLAIM_API_URL = '/api/npro/claim'
 const PENDING_API_URL = '/api/npro/pending'
 
-const GAS = '30000000000000' // 30 Tgas
+// `claim` does a cross-contract ft_transfer with a callback, which costs far
+// more than the 30 Tgas previously attached here once the data-receipt and
+// callback costs are counted. Unused gas is refunded.
+const GAS = '100000000000000' // 100 Tgas
 const STORAGE_DEPOSIT = '1250000000000000000000' // 0.00125 NEAR for token registration
 
 export interface ClaimResult {
