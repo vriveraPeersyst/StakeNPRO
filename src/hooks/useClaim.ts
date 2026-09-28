@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useWallet } from './useWallet'
 import { view } from '@/lib/near'
+import { CLAIM_GAS, STORAGE_DEPOSIT, STORAGE_DEPOSIT_GAS } from '@/lib/gas'
 
 // Contract addresses (production)
 const NPRO_TOKEN_CONTRACT = 'npro.nearmobile.near'
@@ -11,12 +12,6 @@ const STAKING_DISTRIBUTION_CONTRACT = 'distribution.nearmobile.near'
 // Use local API routes to proxy requests and avoid CORS issues
 const CLAIM_API_URL = '/api/npro/claim'
 const PENDING_API_URL = '/api/npro/pending'
-
-// `claim` does a cross-contract ft_transfer with a callback, which costs far
-// more than the 30 Tgas previously attached here once the data-receipt and
-// callback costs are counted. Unused gas is refunded.
-const GAS = '100000000000000' // 100 Tgas
-const STORAGE_DEPOSIT = '1250000000000000000000' // 0.00125 NEAR for token registration
 
 export interface ClaimResult {
   success: boolean
@@ -177,7 +172,7 @@ export function useClaim() {
             params: {
               methodName: 'storage_deposit',
               args: { account_id: accountId },
-              gas: GAS,
+              gas: STORAGE_DEPOSIT_GAS,
               deposit: STORAGE_DEPOSIT,
             },
           },
@@ -206,7 +201,7 @@ export function useClaim() {
           params: {
             methodName: 'claim',
             args: { amount },
-            gas: GAS,
+            gas: CLAIM_GAS,
             deposit: '1', // 1 yocto NEAR required
           },
         },

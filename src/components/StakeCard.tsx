@@ -12,7 +12,8 @@ import { useStake } from '@/hooks/useStake'
 import { useUnstake } from '@/hooks/useUnstake'
 import { useWithdraw } from '@/hooks/useWithdraw'
 import { useClaim } from '@/hooks/useClaim'
-import { formatNearAmount, NEAR_BUFFER } from '@/lib/pool'
+import { formatNearAmount } from '@/lib/pool'
+import { STAKE_RESERVE_NEAR } from '@/lib/gas'
 import { useQuery } from '@tanstack/react-query'
 import { getNearPrice, getPendingNpro, PendingNproData, getNproComparison } from '@/lib/prices'
 import { formatNproAmount, formatNproAmount4Decimals } from '@/lib/utils'
@@ -271,7 +272,7 @@ export default function StakeCard() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="font-sf text-xs leading-3 sm:leading-4 text-[#999999]">
-              0.1 NEAR is reserved for unstaking and storage fees
+              {STAKE_RESERVE_NEAR} NEAR is reserved for unstaking, withdrawing and claiming fees
             </p>
           </div>
         </div>
