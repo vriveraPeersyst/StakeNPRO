@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react'
 import type { NearConnector as NearConnectorType } from '@hot-labs/near-connect'
+import { getConnector } from '@/lib/wallet'
 
 interface WalletState {
   accountId: string | null
@@ -32,15 +33,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false
 
     ;(async () => {
-      const { NearConnector } = await import('@hot-labs/near-connect')
-      const connector = new NearConnector({
-        footerBranding: {
-          icon: 'https://peersyst-public-production.s3.eu-west-1.amazonaws.com/5e2f6863-5292-4c08-b585-08125e67e98b.png',
-          heading: 'NEAR Connector',
-          link: 'https://wallet.near.org',
-          linkText: "Don't have a wallet?",
-        },
-      })
+      const connector = await getConnector()
 
       if (cancelled) return
       connectorRef.current = connector
