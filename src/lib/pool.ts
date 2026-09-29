@@ -1,22 +1,9 @@
 import type { NearConnector as NearConnectorType } from '@hot-labs/near-connect'
 import { view } from './near'
 import { utils } from 'near-api-js'
+import { STAKE_GAS, UNSTAKE_GAS, WITHDRAW_GAS } from './gas'
 
 const POOL_ID = process.env.NEXT_PUBLIC_POOL_ID || 'npro.poolv1.near'
-// Gas attached to staking-pool calls.
-//
-// 30 Tgas is NOT enough. Every pool method starts with a `ping`, and the first
-// call of a new epoch is the one that distributes the epoch rewards. That path
-// also triggers `internal_restake()`, which schedules a `stake` promise plus an
-// `on_stake_action` callback: 20 Tgas attached to the callback and ~9.4 Tgas of
-// data-receipt cost for the `.then` dependency, on top of the ~4 Tgas the call
-// itself burns and the receipt spawned by `withdraw_all`/`unstake`.
-//
-// That pushes a plain 30 Tgas call over its budget and it fails with
-// "Exceeded the prepaid gas" — intermittently, because only the first caller in
-// each epoch pays the restake cost. Unused gas is refunded, so attaching the
-// 300 Tgas maximum costs nothing.
-const GAS = '300000000000000' // 300 Tgas
 
 // Pool view methods
 export async function getAccountStakedBalance(accountId: string): Promise<string> {
@@ -91,7 +78,7 @@ export async function depositAndStake(connector: NearConnectorType, amountNear: 
         params: {
           methodName: 'deposit_and_stake',
           args: {},
-          gas: GAS,
+          gas: STAKE_GAS,
           deposit: amountYocto,
         },
       },
@@ -114,7 +101,7 @@ export async function unstake(connector: NearConnectorType, amountNear: string):
         params: {
           methodName: 'unstake',
           args,
-          gas: GAS,
+          gas: UNSTAKE_GAS,
           deposit: '0',
         },
       },
@@ -140,7 +127,7 @@ export async function unstakeAll(connector: NearConnectorType, accountId: string
         params: {
           methodName: 'unstake',
           args,
-          gas: GAS,
+          gas: UNSTAKE_GAS,
           deposit: '0',
         },
       },
@@ -161,7 +148,7 @@ export async function withdrawAll(connector: NearConnectorType): Promise<string>
         params: {
           methodName: 'withdraw_all',
           args: {},
-          gas: GAS,
+          gas: WITHDRAW_GAS,
           deposit: '0',
         },
       },
@@ -209,7 +196,3 @@ export function formatNearAmount(yoctoNear: string, withThousandSeparator: boole
 export function parseNearAmount(nearAmount: string): string | null {
   return utils.format.parseNearAmount(nearAmount)
 }
-
-// Buffer amount for transactions (keep 0.02 NEAR)
-export const NEAR_BUFFER = '0.02'
-export const NEAR_BUFFER_YOCTO = utils.format.parseNearAmount(NEAR_BUFFER) || '0'

@@ -28,7 +28,8 @@ pnpm preview      # Production server on port 4000
   - `wallet.ts` — Singleton NEAR Wallet Selector setup (Ledger, MyNearWallet, HERE, HOT, Meteor, NEAR Mobile)
   - `near.ts` — RPC `view()` helper with automatic failover via `rpcManager.ts`
   - `rpcManager.ts` — Multi-endpoint RPC manager with failure tracking, blacklisting, and automatic failover across configured RPC URLs
-  - `pool.ts` — Staking pool contract view/call methods against `NEXT_PUBLIC_POOL_ID` (staked/unstaked balances, stake/unstake/withdraw actions). Uses 30 Tgas gas constant.
+  - `pool.ts` — Staking pool contract view/call methods against `NEXT_PUBLIC_POOL_ID` (staked/unstaked balances, stake/unstake/withdraw actions).
+  - `gas.ts` — Gas attached per call (matches NEAR Mobile's measured values) and the NEAR reserved when staking, sized for NEP-642's 0.001 NEAR/Tgas gas purchase floor
   - `nproCalculations.ts` — NPRO reward bonding curve math using `Decimal.js` and `BigNumber.js`
   - `prices.ts` — NEAR-to-USD price fetching
 
@@ -48,7 +49,8 @@ pnpm preview      # Production server on port 4000
 ### Key Domain Concepts
 
 - All NEAR amounts are in **yoctoNEAR** (10^24) internally; `near-api-js/utils` handles conversion
-- A **0.02 NEAR safety buffer** is reserved when users click "Max" stake
+- **`STAKE_RESERVE_NEAR`** (0.11 NEAR, derived in `gas.ts`) is kept back when users click "Max" or a percentage, so they can still sign unstake, withdraw and claim
+- Since NEP-642 the signer must hold attached gas × 0.001 NEAR/Tgas up front (refunded after execution); keep attached gas tight
 - Unstaking takes **~30-37 hours (4 epochs)** before withdrawal is available
 - NPRO rewards follow a bonding curve defined in `nproCalculations.ts`
 

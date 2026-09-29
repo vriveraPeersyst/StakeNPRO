@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useWallet } from './useWallet'
 import { getAccountBalance } from '@/lib/near'
 import { formatNearAmount, parseNearAmount } from '@/lib/pool'
+import { STAKE_RESERVE_NEAR } from '@/lib/gas'
 
 export function useWalletBalance() {
   const { accountId, isConnected } = useWallet()
@@ -26,13 +27,12 @@ export function useWalletBalance() {
 
   const balanceInNear = balanceQuery.data ? formatNearAmount(balanceQuery.data) : '0'
   
-  // Calculate percentage amounts with a small buffer for gas fees
+  // Calculate percentage amounts, keeping NEAR back for later transactions
   const calculatePercentageAmount = (percentage: number): string => {
     if (!balanceQuery.data || balanceQuery.data === '0') return '0'
     
     const balanceNum = parseFloat(balanceInNear)
-    // Reserve 0.1 NEAR for gas fees
-    const availableBalance = Math.max(0, balanceNum - 0.1)
+    const availableBalance = Math.max(0, balanceNum - parseFloat(STAKE_RESERVE_NEAR))
     const amount = availableBalance * percentage
     
     return amount > 0 ? amount.toFixed(6) : '0'
@@ -42,8 +42,7 @@ export function useWalletBalance() {
     if (!balanceQuery.data || balanceQuery.data === '0') return '0'
     
     const balanceNum = parseFloat(balanceInNear)
-    // Reserve 0.1 NEAR for gas fees
-    const maxAmount = Math.max(0, balanceNum - 0.1)
+    const maxAmount = Math.max(0, balanceNum - parseFloat(STAKE_RESERVE_NEAR))
     
     return maxAmount > 0 ? maxAmount.toFixed(6) : '0'
   }
